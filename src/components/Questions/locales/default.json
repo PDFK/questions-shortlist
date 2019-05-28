@@ -1,0 +1,65 @@
+{
+  "es": {
+    "select_options": {
+      "value_types": {
+        "date": "Una fecha",
+        "string": "Letras y números",
+        "int": "Números",
+        "boolean": "Si ó No",
+        "range": "Un rango",
+        "currency": "Moneda",
+        "option": "Selección Simple",
+        "multiple_option": "Selección Multiple"
+      },
+      "killer_condition_types": {
+        "smaller_than": "Menor Que",
+        "less_than_or_equal_to": "Menor o Igual Que",
+        "equal": "Igual Que",
+        "distinct": "Distinto que",
+        "greater_than": "Mayor Que",
+        "greater_than_or_equal": "Mayor o Igual Que",
+        "between": "Dentro del rango",
+        "not_between": "Fuera del rango",
+        "is_option": "Seleccionada la opción",
+        "isnt_option": "Una opción diferente a la seleccionada",
+        "are_options": "El conjunto de opciones de descarte esté presente",
+        "arent_options": "El conjunto de opciones de descarte no esté presente",
+        "some_option": "Alguna opción del conjunto de descarte esté presente",
+        "none_choice": "Ninguna opción del conjunto de descarte esté presente"
+      }
+    },
+    "html_helpers": {
+      "types": {
+        "default": "Introduzca el valor para comparar al descartar",
+        "range": "Introduzca el valor inicial del rango seguido de una coma, posteriormente el valor final. Ej: 1,5",
+        "int": "Introduzca el valor númerico para comparar y descartar",
+        "date": "Seleccione una fecha para comparar",
+        "currency": "Ingrese el monto para descartar",
+        "option": "Seleccione la opción para descartar",
+        "multiple_option": "Seleccione las opciones para descartar"
+      },
+      "others": "preguntas",
+      "one": "Pregunta",
+      "boolean_option": {
+        "positive": "Si",
+        "negative": "No"
+      },
+      "range_option": {
+        "initial": "Valor Inicial",
+        "final": "Valor Final"
+      }
+    },
+    "attributes": {
+      "description": "Texto de la pregunta a realizar",
+      "killer_condition": "Descartar cuando sea (o esté)...",
+      "killer_condition_multiple": "Descartar cuando...",
+      "killer_value": "Valor para realizar el descarte",
+      "killer_value_multiple": "Opciones para realizar el descarte",
+      "value_type": "Evaluar en base a...",
+      "options": "Opciones de la pregunta"
+    },
+    "action": {
+      "add": " Agregar pregunta"
+    }
+  }
+}

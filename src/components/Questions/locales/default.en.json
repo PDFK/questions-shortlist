@@ -1,0 +1,65 @@
+{
+  "en": {
+    "select_options": {
+      "value_types": {
+        "date": "A date",
+        "string": "Letters and numbers",
+        "int": "Numbers",
+        "boolean": "Yes or no",
+        "range": "Range",
+        "currency": "Currency",
+        "option": "Single selecction",
+        "multiple_option": "Multiple selecction"
+      },
+      "killer_condition_types": {
+        "smaller_than": "Smaller Than",
+        "less_than_or_equal_to": "Less Than Or Equal To",
+        "equal": "Equal",
+        "distinct": "Distinct",
+        "greater_than": "Greater Than",
+        "greater_than_or_equal": "Greater Than Or Equal",
+        "between": "Inside the range",
+        "not_between": "Out of range",
+        "is_option": "Selected the option",
+        "isnt_option": "An option different from the one selected",
+        "are_options": "The set of discard options is present",
+        "arent_options": "The set of discard options is not present",
+        "some_option": "Any option of the discard set is present",
+        "none_choice": "No option of the discard set is present"
+      }
+    },
+    "html_helpers": {
+      "types": {
+        "default": "Enter the value to compare when discarding",
+        "range": "Enter the initial value of the range followed by a comma, then the final value. Ex: 1,5",
+        "int": "Enter a numeric value to compare and discard",
+        "date": "Pick a date for comparing",
+        "currency": "Enter the amount to discard",
+        "option": "Select the option to discard",
+        "multiple_option": "Select the options to discard"
+      },
+      "others": "Questions",
+      "one": "Question",
+      "boolean_option": {
+        "positive": "Yes",
+        "negative": "No"
+      },
+      "range_option": {
+        "initial": "Initial value",
+        "final": "Final value"
+      }
+    },
+    "attributes": {
+      "description": "Text of the question to be asked",
+      "killer_condition": "Discard when the answer is...",
+      "killer_condition_multiple": "Discard when...",
+      "killer_value": "Expected value to discard",
+      "killer_value_multiple": "Expected options to discard",
+      "value_type": "Evaluate based on ...",
+      "options": "Question Options"
+    },
+    "action": {
+      "add": " Add question"
+    }
+  }
+}
