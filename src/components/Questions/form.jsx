@@ -9,7 +9,7 @@ class QuestionForm extends React.Component {
     super(props);
     this.state = {
       value_type: props.question.value_type,
-      description: props.question.description,
+      description: props.question.description || "",
     };
     this.killervalueinputElement = React.createRef();
     this.handleDelete = this.handleDelete.bind(this)
@@ -71,22 +71,21 @@ class QuestionForm extends React.Component {
   }
 
   render() {
-    const name = this.props.name;
-    const { t } = this.props;
+    const { t,name,question } = this.props;
 
     return (
       <div className="row">
         <div className="form-group col-sm-3">
           <label htmlFor="" className="label-bold">{ t("questions.attributes.description") }</label>
           <input type="text" name={ `${name}[description]` } className="form-control" value={ this.state.description } onChange={ this.handleInputChange } />
-          <InputError attr="description" errors={ this.props.question.errors } />
+          <InputError attr="description" errors={ question.errors } />
         </div>
-        <input type="hidden"  name={ `${name}[order]` } value={ this.props.question.order }/>
+        <input type="hidden"  name={ `${name}[order]` } value={ question.order }/>
 
         <div className="form-group col-sm-2">
           <label htmlFor="" className="label-bold">{ t("questions.attributes.value_type") }</label>
           { this.drawValueType() }
-          <InputError attr="value_type" errors={ this.props.question.errors } />
+          <InputError attr="value_type" errors={ question.errors } />
         </div>
 
         { this.drawKillerCondition() }

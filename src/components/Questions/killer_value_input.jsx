@@ -56,6 +56,7 @@ class KillerValueInput extends React.Component {
       case "multiple_option":
           const options = this.state.options;
           const multiple = selected_option == "multiple_option";
+
           return (
             <div style={ customStyles }>
               <Select isMulti={ multiple } ref={'inputSelect'} options={ options } value={ this.validOptions(value) } onChange={ this.handleKillerValueChange } />
