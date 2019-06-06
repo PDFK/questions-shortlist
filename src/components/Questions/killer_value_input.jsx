@@ -55,11 +55,10 @@ class KillerValueInput extends React.Component {
       case "option":
       case "multiple_option":
           const options = this.state.options;
-          const multiple = selected_option == "multiple_option";
 
           return (
             <div style={ customStyles }>
-              <Select isMulti={ multiple } ref={'inputSelect'} options={ options } value={ this.validOptions(value) } onChange={ this.handleKillerValueChange } />
+              <Select isMulti={ true } ref={'inputSelect'} options={ options } value={ this.validOptions(value) } onChange={ this.handleKillerValueChange } />
               <input type="hidden" name={ `${name}[killer_value]` } value={ this.state.killer_value_multiple }/>
             </div>
           )
@@ -139,7 +138,7 @@ class KillerValueInput extends React.Component {
     var selected_option = this.props.selected_option;
     var text_helper = (selected_option == "string" || selected_option == "boolean") ? "default" : selected_option;
     const {t} = this.props;
-    const label = this.props.selected_option == "multiple_option" ? "killer_value_multiple" : "killer_value";
+    const label = selected_option == "multiple_option" || selected_option == "option" ? "killer_value_multiple" : "killer_value";
 
     return (
       <div className="form-group col-sm-3">

@@ -20,8 +20,8 @@
         "greater_than_or_equal": "Mayor o Igual Que",
         "between": "Dentro del rango",
         "not_between": "Fuera del rango",
-        "is_option": "Seleccionada la opción",
-        "isnt_option": "Una opción diferente a la seleccionada",
+        "is_option": "La selección esté presente en las opciones de descarte",
+        "isnt_option": "La selección no esté presente en las opciones de descarte",
         "are_options": "El conjunto de opciones de descarte esté presente",
         "arent_options": "El conjunto de opciones de descarte no esté presente",
         "some_option": "Alguna opción del conjunto de descarte esté presente",
@@ -31,7 +31,7 @@
     "html_helpers": {
       "types": {
         "default": "Introduzca el valor para comparar al descartar",
-        "range": "Introduzca el valor inicial del rango seguido de una coma, posteriormente el valor final. Ej: 1,5",
+        "range": "Introduzca el valor inicial del rango, posteriormente el valor final.",
         "int": "Introduzca el valor númerico para comparar y descartar",
         "date": "Seleccione una fecha para comparar",
         "currency": "Ingrese el monto para descartar",

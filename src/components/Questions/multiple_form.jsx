@@ -87,8 +87,6 @@ class MultipleForm extends React.Component {
     switch(value_type){
       case "boolean":
       case "option":
-          values = { value: killer_value, label: killer_value }
-          break;
       case "multiple_option":
           if (Array.isArray(values)) {
             values = values.map(function(item){
