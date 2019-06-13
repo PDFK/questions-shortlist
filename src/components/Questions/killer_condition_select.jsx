@@ -118,7 +118,8 @@ class KillerConditionSelect extends React.Component {
   drawKillerCondition() {
     const killer_condition = this.state.killer_condition;
     const options = this.validOptions(this.props.selected_option);
-    const name = this.props.name;
+    const {name, t} = this.props;
+
     let value =
       options.find(function(item) {
         return item.value == killer_condition;
@@ -131,6 +132,7 @@ class KillerConditionSelect extends React.Component {
         options={options}
         value={value}
         name={`${name}[killer_condition]`}
+        placeholder= {t("questions.action.select")}
       />
     );
   }
@@ -154,7 +156,7 @@ class KillerConditionSelect extends React.Component {
         ? "killer_condition_multiple"
         : "killer_condition";
     return (
-      <div className="form-group col-sm-6">
+      <div className="form-group">
         <label htmlFor="" className="label-bold">
           {t(`questions.attributes.${label}`)}
         </label>

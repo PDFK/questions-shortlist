@@ -118,6 +118,8 @@ class KillerValueInput extends React.Component {
               options={options}
               value={commonFunctions.validOptions(value, this)}
               onChange={this.handleKillerValueChange}
+              placeholder= {t("questions.action.select")}
+              noOptionsMessage= {() => t("questions.action.no_options")}
             />
             <input
               type="hidden"
@@ -198,7 +200,7 @@ class KillerValueInput extends React.Component {
 
     if (selected_option == "option" || selected_option == "multiple_option") {
       return (
-        <div className="question-options">
+        <div className="question-options flex-fill px-3">
           <label htmlFor="" className="label-bold">
             {t("questions.attributes.options")}
           </label>
@@ -209,6 +211,8 @@ class KillerValueInput extends React.Component {
             className=""
             onChange={this.handleOptionsChange}
             name={`${name}[options][]`}
+            placeholder={t("questions.action.no_options")}
+            noOptionsMessage= {() => t("questions.action.no_options")}
           />
           <InputError attr="options" errors={this.props.question.errors} />
         </div>
@@ -230,20 +234,24 @@ class KillerValueInput extends React.Component {
         : "killer_value";
 
     return (
-      <div className="form-group col-sm-6">
+      <div className="form-group row">
         {this.drawOptionsInput()}
-        <label htmlFor="" className="label-bold">
-          {t(`questions.attributes.${label}`)}
-        </label>
-        <div className="input-group">
-          {this.drawKillerValue()}
-          <div className="input-group-append">
-            <span
-              className="input-group-text"
-              title={t(`questions.html_helpers.types.${text_helper}`)}
-            >
-              <i className="fas fa-info-circle" />
-            </span>
+        <div className="flex-fill px-3">
+          <label htmlFor="" className="label-bold">
+            {t(`questions.attributes.${label}`)}
+          </label>
+          <div className="input-group">
+            {this.drawKillerValue()}
+            <div className="input-group-append">
+              <a
+                className="input-group-text tooltip-info"
+                title={t(`questions.html_helpers.types.${text_helper}`)}
+                data-toggle="tooltip"
+                data-placement="top"
+              >
+                <i className="fas fa-info-circle" />
+              </a>
+            </div>
           </div>
         </div>
         <InputError attr="killer_value" errors={this.props.question.errors} />

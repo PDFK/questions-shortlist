@@ -128,59 +128,69 @@ class QuestionForm extends React.Component {
     const { t, name, question } = this.props;
     return (
       <div className="row">
-        <div className="col-sm-9">
-          <div className="row">
-            <div className="form-group col-sm-6">
-              <label htmlFor="" className="label-bold">
-                {t("questions.attributes.description")}
-              </label>
-              <input
-                type="text"
-                name={`${name}[description]`}
-                className="form-control"
-                value={this.state.description}
-                onChange={this.handleInputChange}
-              />
-              <InputError attr="description" errors={question.errors} />
-            </div>
-            <input
-              type="hidden"
-              name={`${name}[order]`}
-              value={question.order}
-            />
-
-            <div className="form-group col-sm-6">
-              <label htmlFor="" className="label-bold">
-                {t("questions.attributes.value_type")}
-              </label>
-              {this.drawValueType()}
-              <InputError attr="value_type" errors={question.errors} />
-            </div>
-
-            {this.drawKillerCondition()}
-
-            {this.drawKillerValue()}
-            <div className="col-sm-1">
+        <div className="col-sm-12">
+          <div className="card hover-card mb-3">
+            <div className="float-right">
               <a
                 href="javascript:void(0);"
-                className=""
+                className="btn btn-sm btn-link text-danger float-right"
                 onClick={this.handleDelete}
+                aria-label="Borrar Pregunta"
+                title="Borrar"
               >
-                <i className="fas fa-trash-alt mt-5" alt="borrar" />
+                <i className="fas fa-trash-alt h6" alt="borrar" />
               </a>
             </div>
+            <div className="card-body pt-0">
+              <div className="row">
+                <div className="form-group col-sm-12">
+                  <label htmlFor="" className="label-bold">
+                    {t("questions.attributes.description")}
+                  </label>
+                  <input
+                    type="text"
+                    name={`${name}[description]`}
+                    className="form-control"
+                    value={this.state.description}
+                    onChange={this.handleInputChange}
+                  />
+                  <InputError attr="description" errors={question.errors} />
+                </div>
+              </div>
+              <div className="row d-flex">
+                <input
+                  type="hidden"
+                  name={`${name}[order]`}
+                  value={question.order}
+                />
+
+                <div className="form-group flex-fill px-3">
+                  <label htmlFor="" className="label-bold">
+                    {t("questions.attributes.value_type")}
+                  </label>
+                  {this.drawValueType()}
+                  <InputError attr="value_type" errors={question.errors} />
+                </div>
+
+                <div className="form-group flex-fill px-3">
+                  {this.drawKillerCondition()}
+                </div>
+                <div className="form-group flex-fill px-3">
+                  {this.drawKillerValue()}
+                </div>
+              </div>
+            </div>
+            <AnswerInput
+              t={this.props.t}
+              ref={this.answerinputElement}
+              description={this.state.description}
+              selected_option={this.state.value_type}
+              options={this.state.options}
+              killer_condition={this.state.killer_condition}
+              killer_value={this.state.killer_value}
+            />
           </div>
         </div>
-        <AnswerInput
-          t={this.props.t}
-          ref={this.answerinputElement}
-          description={this.state.description}
-          selected_option={this.state.value_type}
-          options={this.state.options}
-          killer_condition={this.state.killer_condition}
-          killer_value={this.state.killer_value}
-        />
-        <hr />
       </div>
     );
   }

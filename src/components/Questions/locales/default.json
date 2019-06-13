@@ -38,7 +38,14 @@
         "option": "Seleccione la opción para descartar",
         "multiple_option": "Seleccione las opciones para descartar"
       },
-      "others": "preguntas",
+      "answer_preview": {
+        "info": "Prueba como funcionará el descarte con las respuestas.",
+        "state": {
+          "approved": "Con esta respuesta/s un candidato sería Aprobado",
+          "discarded": "Con esta respuesta/s un candidato sería Descartado"
+        }
+      },
+      "others": "Preguntas de descarte",
       "one": "Pregunta",
       "boolean_option": {
         "positive": "Si",
@@ -59,7 +66,10 @@
       "options": "Opciones de la pregunta"
     },
     "action": {
-      "add": " Agregar pregunta"
+      "add": " Agregar pregunta",
+      "add_options": "Añadir Opciones",
+      "select": "Seleciona",
+      "no_options": "Sin Opciones"
     }
   }
 }

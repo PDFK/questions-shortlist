@@ -32,10 +32,6 @@ class AnswerInput extends React.Component {
         label: t("questions.html_helpers.boolean_option.negative")
       }
     ];
-    const customStyles = {
-      // none of react-select's styles are passed to <Control />
-      width: "calc(100% - 42px)"
-    };
 
     switch (selected_option) {
       case "currency":
@@ -52,7 +48,7 @@ class AnswerInput extends React.Component {
       case "range":
         let answer_value = Array.isArray(value) ? value[0] : value;
         return (
-          <div style={customStyles}>
+          <div className="col-sm-5 pr-0">
             <input
               onChange={this.handleInputChange}
               value={answer_value}
@@ -65,11 +61,12 @@ class AnswerInput extends React.Component {
         );
       case "boolean":
         return (
-          <div style={customStyles}>
+          <div className="col-sm-5 pr-0">
             <Select
               options={boolean_options}
               value={value}
               onChange={this.handleKillerValueChange}
+              placeholder= {t("questions.action.select")}
             />
           </div>
         );
@@ -101,13 +98,15 @@ class AnswerInput extends React.Component {
           ? value[0]
           : value;
         return (
-          <div style={customStyles}>
+          <div className="col-sm-5 pr-0">
             <Select
               isMulti={is_multi}
               ref={"inputSelect"}
               options={options}
               value={commonFunctions.validOptions(k_value, this)}
               onChange={this.handleKillerValueChange}
+              placeholder= {t("questions.action.select")}
+              noOptionsMessage= {() => t("questions.action.no_options")}
             />
           </div>
         );
@@ -230,16 +229,22 @@ class AnswerInput extends React.Component {
   }
 
   drawIsCorrect() {
-    const is_wrong = this.evaluateAnswer(this.state.answer);
-    const icon = is_wrong ? "down" : "up";
-    const bg = is_wrong ? "bg-danger" : "bg-success";
-    const text_helper = is_wrong ? "Descartado" : "Aprobado";
+    const {t} = this.props;
+    if (String(this.state.answer).trim() != "") {
+      const is_wrong = this.evaluateAnswer(this.state.answer);
+      const icon = is_wrong ? "down" : "up";
+      const color = is_wrong ? "danger" : "success";
+      const text_helper = is_wrong ? "discarded" : "approved";
 
-    return (
-      <span className={`input-group-text ${bg}`} title={text_helper}>
-        <i className={`far fa-thumbs-${icon} text-light`} />
-      </span>
-    );
+      return (
+        <span className={`small font-weight-bold text-${color}`} title={text_helper}>
+          <i className={`far fa-thumbs-${icon} mr-2`} />
+          {t(`questions.html_helpers.answer_preview.state.${text_helper}`)}
+        </span>
+      );
+    } else {
+      return null
+    }
   }
 
   resetValues() {
@@ -247,16 +252,27 @@ class AnswerInput extends React.Component {
   }
 
   drawExampleQuestion() {
-    const { killer_value, killer_condition } = this.props;
+    const { killer_value, killer_condition, t } = this.props;
     if (killer_condition.trim() != "" && String(killer_value).trim() != "") {
       return (
-        <div className="form-group col-sm-12">
-          <label htmlFor="" className="label-bold">
-            {this.props.description}
-          </label>
-          <div className="input-group">
-            {this.drawExampleInput()}
-            <div className="input-group-append">{this.drawIsCorrect()}</div>
+        <div className="card-footer">
+          <div className="form-group">
+            <p className="text-muted mb-2">
+              <small>{t("questions.html_helpers.answer_preview.info")}</small>
+            </p>
+            <div className="row d-flex align-items-center">
+              <div className="col-sm-4 __force-text_break-word">
+                <label htmlFor="" className="label-bold">
+                  {this.props.description}
+                </label>
+              </div>
+              <div className="col-sm-8">
+                <div className="input-group d-flex align-items-center">
+                  {this.drawExampleInput()}
+                  <div className="col-sm-7">{this.drawIsCorrect()}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -264,7 +280,7 @@ class AnswerInput extends React.Component {
   }
 
   render() {
-    return <div className="col-sm-3">{this.drawExampleQuestion()}</div>;
+    return <div className="">{this.drawExampleQuestion()}</div>;
   }
 }
 
