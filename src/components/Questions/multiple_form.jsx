@@ -64,9 +64,9 @@ class MultipleForm extends React.Component {
   }
 
   questionFormat(question) {
-    const options = question.options.map(function(item){
+    const options = question.options && Array.isArray(question.options) ? question.options.map(function(item){
       return {value: item, label: item};
-    })
+    }) : [];
     const killer_value = this.killerValueFormat(question.killer_value, question.value_type);
 
     const new_question = {
@@ -87,12 +87,18 @@ class MultipleForm extends React.Component {
     switch(value_type){
       case "boolean":
       case "option":
-          values = { value: killer_value, label: killer_value }
-          break;
       case "multiple_option":
-          values = Array.isArray(killer_value) ? killer_value.map(function(item){
-            return {value: item, label: item};
-          }) : { value: killer_value, label: killer_value };
+          if (Array.isArray(values)) {
+            values = values.map(function(item){
+              return {value: item, label: item};
+            });
+          }
+          else {
+            values = values.split(";");
+            values = values.map(function(item){
+              return {value: item, label: item};
+            });
+          }
           break;
       case "range":
           values = values.split(",");
