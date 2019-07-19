@@ -5,7 +5,7 @@
         "date": "Una fecha",
         "string": "Letras y números",
         "int": "Números",
-        "boolean": "Si ó No",
+        "boolean": "Si o No",
         "range": "Un rango",
         "currency": "Moneda",
         "option": "Selección Simple",
