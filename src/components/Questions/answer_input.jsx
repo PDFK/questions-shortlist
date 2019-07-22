@@ -1,6 +1,5 @@
 import React from "react";
 import Select from "react-select";
-import CreatableSelect from "react-select/lib/Creatable";
 import CurrencyInput from "react-currency-input";
 import * as commonFunctions from "./common.js";
 import _ from "lodash";
@@ -21,7 +20,7 @@ class AnswerInput extends React.Component {
 
   drawExampleInput() {
     const value = this.state.answer;
-    const { t, selected_option, name } = this.props;
+    const { t, selected_option } = this.props;
     const boolean_options = [
       {
         value: t("questions.html_helpers.boolean_option.positive"),
@@ -66,7 +65,7 @@ class AnswerInput extends React.Component {
               options={boolean_options}
               value={value}
               onChange={this.handleKillerValueChange}
-              placeholder= {t("questions.action.select")}
+              placeholder={t("questions.action.select")}
             />
           </div>
         );
@@ -91,7 +90,7 @@ class AnswerInput extends React.Component {
       case "option":
       case "multiple_option":
         const options = this.state.options;
-        const is_multi = selected_option == "multiple_option" ? true : false;
+        const is_multi = selected_option === "multiple_option";
         const k_value = is_multi
           ? value
           : Array.isArray(value)
@@ -105,8 +104,8 @@ class AnswerInput extends React.Component {
               options={options}
               value={commonFunctions.validOptions(k_value, this)}
               onChange={this.handleKillerValueChange}
-              placeholder= {t("questions.action.select")}
-              noOptionsMessage= {() => t("questions.action.no_options")}
+              placeholder={t("questions.action.select")}
+              noOptionsMessage={() => t("questions.action.no_options")}
             />
           </div>
         );
@@ -136,9 +135,7 @@ class AnswerInput extends React.Component {
   }
 
   handleKillerValueChange(value) {
-    const killer_value_multiple = Array.isArray(value)
-      ? value.map(a => a.value).join(";")
-      : value.value;
+    Array.isArray(value) ? value.map(a => a.value).join(";") : value.value;
 
     this.setState({ answer: value });
   }
@@ -165,7 +162,7 @@ class AnswerInput extends React.Component {
           parseFloat(killer_value[0]),
           parseFloat(killer_value[1]) + 1
         );
-        if (killer_condition == "between?") {
+        if (killer_condition === "between?") {
           return condition;
         } else {
           return !condition;
@@ -211,16 +208,15 @@ class AnswerInput extends React.Component {
     switch (killer_condition) {
       case "are_options?":
         return (
-          _.intersection(kv_set, answer_set).toString() == kv_set.toString()
+          _.intersection(kv_set, answer_set).toString() === kv_set.toString()
         );
       case "arent_options?":
         return (
-          _.intersection(kv_set, answer_set).toString() != kv_set.toString()
+          _.intersection(kv_set, answer_set).toString() !== kv_set.toString()
         );
       case "some_option?":
       case "is_option?":
         return !!_.intersection(answer_set, kv_set).length;
-      case "some_option?":
       case "isnt_option?":
         return !_.intersection(answer_set, kv_set).length;
       default:
@@ -229,21 +225,24 @@ class AnswerInput extends React.Component {
   }
 
   drawIsCorrect() {
-    const {t} = this.props;
-    if (String(this.state.answer).trim() != "") {
+    const { t } = this.props;
+    if (String(this.state.answer).trim() !== "") {
       const is_wrong = this.evaluateAnswer(this.state.answer);
       const icon = is_wrong ? "down" : "up";
       const color = is_wrong ? "danger" : "success";
       const text_helper = is_wrong ? "discarded" : "approved";
 
       return (
-        <span className={`small font-weight-bold text-${color}`} title={text_helper}>
-          <i className={`far fa-thumbs-${icon} mr-2`} />
+        <span
+          className={`small font-weight-bold text-${color}`}
+          title={text_helper}
+        >
+          <i className={`fa far fa-thumbs-${icon} mr-2`} />
           {t(`questions.html_helpers.answer_preview.state.${text_helper}`)}
         </span>
       );
     } else {
-      return null
+      return null;
     }
   }
 
@@ -253,7 +252,7 @@ class AnswerInput extends React.Component {
 
   drawExampleQuestion() {
     const { killer_value, killer_condition, t } = this.props;
-    if (killer_condition.trim() != "" && String(killer_value).trim() != "") {
+    if (killer_condition.trim() !== "" && String(killer_value).trim() !== "") {
       return (
         <div className="card-footer">
           <div className="form-group">

@@ -118,8 +118,8 @@ class KillerValueInput extends React.Component {
               options={options}
               value={commonFunctions.validOptions(value, this)}
               onChange={this.handleKillerValueChange}
-              placeholder= {t("questions.action.select")}
-              noOptionsMessage= {() => t("questions.action.no_options")}
+              placeholder={t("questions.action.select")}
+              noOptionsMessage={() => t("questions.action.no_options")}
             />
             <input
               type="hidden"
@@ -146,9 +146,9 @@ class KillerValueInput extends React.Component {
       ? this.state.killer_value.map(a => a.value).join(";")
       : this.state.killer_value.value;
     if (
-      (this.props.selected_option == "option" ||
-        this.props.selected_option == "multiple_option") &&
-      typeof killer_value_multiple != "undefined"
+      (this.props.selected_option === "option" ||
+        this.props.selected_option === "multiple_option") &&
+      typeof killer_value_multiple !== "undefined"
     )
       this.setState({ killer_value_multiple: killer_value_multiple });
   }
@@ -158,7 +158,7 @@ class KillerValueInput extends React.Component {
       ? value.map(a => a.value).join(";")
       : value.value;
 
-    if (typeof killer_value_multiple != "undefined") {
+    if (typeof killer_value_multiple !== "undefined") {
       this.setState({
         killer_value: value,
         killer_value_multiple: killer_value_multiple
@@ -181,7 +181,7 @@ class KillerValueInput extends React.Component {
   handleInputRangeChange(event) {
     let killer_value = this.state.killer_value || [0, 1];
     const input = event.target;
-    const edge = event.target.getAttribute("data-edge") == "initial" ? 0 : 1;
+    const edge = event.target.getAttribute("data-edge") === "initial" ? 0 : 1;
 
     killer_value[edge] = input.value;
     this.setState({ killer_value: killer_value });
@@ -198,7 +198,7 @@ class KillerValueInput extends React.Component {
     let selected_option = this.props.selected_option;
     const { t, name } = this.props;
 
-    if (selected_option == "option" || selected_option == "multiple_option") {
+    if (selected_option === "option" || selected_option === "multiple_option") {
       return (
         <div className="question-options flex-fill px-3">
           <label htmlFor="" className="label-bold">
@@ -212,7 +212,7 @@ class KillerValueInput extends React.Component {
             onChange={this.handleOptionsChange}
             name={`${name}[options][]`}
             placeholder={t("questions.action.no_options")}
-            noOptionsMessage= {() => t("questions.action.no_options")}
+            noOptionsMessage={() => t("questions.action.no_options")}
           />
           <InputError attr="options" errors={this.props.question.errors} />
         </div>
@@ -225,11 +225,11 @@ class KillerValueInput extends React.Component {
   render() {
     const { t, selected_option } = this.props;
     var text_helper =
-      selected_option == "string" || selected_option == "boolean"
+      selected_option === "string" || selected_option === "boolean"
         ? "default"
         : selected_option;
     const label =
-      selected_option == "multiple_option" || selected_option == "option"
+      selected_option === "multiple_option" || selected_option === "option"
         ? "killer_value_multiple"
         : "killer_value";
 
