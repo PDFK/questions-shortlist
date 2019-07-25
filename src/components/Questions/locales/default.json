@@ -58,6 +58,7 @@
     },
     "attributes": {
       "description": "Texto de la pregunta a realizar",
+      "weighing": "Peso de la pregunta",
       "killer_condition": "Descartar cuando sea (o esté)...",
       "killer_condition_multiple": "Descartar cuando...",
       "killer_value": "Valor para realizar el descarte",

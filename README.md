@@ -24,6 +24,20 @@ class Example extends Component {
 }
 ```
 
+If you want to track the weighing og the question, the only thing you have to do is put `with_weight` as prop of **Questions** component
+
+```jsx
+import React, { Component } from "react";
+
+import Questions from "questions-shortlist";
+
+class Example extends Component {
+  render() {
+    return <Questions with_weight />;
+  }
+}
+```
+
 ## DEVELOP
 
 Put in **src/index.js**

@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import InputError from "./error.jsx";
 
 const KillerConditionSelect = props => {
   const { t, name, selected_option } = props;
   const [killer_condition, setKillerCondition] = useState(
-    props.question.killer_condition
+    props.killer_condition
   );
-  const [prev_killer_condition, setPrevKillerCondition] = useState(null);
+
   const label =
     selected_option === "multiple_option"
       ? "killer_condition_multiple"
       : "killer_condition";
 
-  if (killer_condition !== prev_killer_condition) {
-    setPrevKillerCondition(killer_condition);
-  }
+  useEffect(() => {
+    setKillerCondition(props.killer_condition);
+  }, [props.killer_condition]);
 
   const validOptions = selected_option => {
     const killer_condition_types = [
@@ -122,15 +122,12 @@ const KillerConditionSelect = props => {
 
   const drawKillerCondition = () => {
     const options = validOptions(props.selected_option);
-
     const value =
       options.find(item => {
         return item.value === killer_condition;
       }) || [];
-
     return (
       <Select
-        className=""
         onChange={handleKillerValue}
         options={options}
         value={value}

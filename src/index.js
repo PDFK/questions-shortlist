@@ -9,6 +9,7 @@ const MultipleQuestions = props => {
       <Questions
         questions={props.questions || []}
         form_name={props.form_name}
+        with_weight={props.with_weight || false}
       />
     </I18nextProvider>
   );

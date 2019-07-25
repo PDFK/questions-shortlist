@@ -2,15 +2,16 @@ import React, { useState, useEffect, memo } from "react";
 import QuestionForm from "./form.jsx";
 
 const MultipleForm = props => {
-  const { name, t } = props;
-  const [questions, setQuestions] = useState(props.questions);
+  const { name, t, with_weight } = props;
+  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    questions.forEach((question, index) => {
+    let questionsTemp = [...props.questions];
+    questionsTemp.forEach(question => {
       const key = Math.floor(Math.random() * 1000000000000);
       question.hasOwnProperty("key") ? question : (question["key"] = key);
     });
-    setQuestions(questions);
+    setQuestions(questionsTemp);
   }, []);
 
   const handleClick = event => {
@@ -18,6 +19,8 @@ const MultipleForm = props => {
     const key = Math.floor(Math.random() * 1000000000000);
     let questionsTemp = [...questions];
     const order = questionsTemp.length + 1;
+    const total = calculateTotalWeight(questionsTemp);
+    const weighing = 100 - total;
     questionsTemp.push({
       id: "",
       value_type: "string",
@@ -25,8 +28,10 @@ const MultipleForm = props => {
       options: [],
       killer_value: "",
       key: key,
+      weighing: weighing,
       order: order
     });
+    setWeightErrors(questionsTemp);
     setQuestions(questionsTemp);
   };
 
@@ -37,6 +42,7 @@ const MultipleForm = props => {
     });
 
     arr.splice(found, 1);
+    setWeightErrors(arr);
     setQuestions(arr);
   };
 
@@ -50,9 +56,49 @@ const MultipleForm = props => {
             name={`${name}[${_question.key}]`}
             question={_question}
             deleteQuestion={handleDelete}
+            handleOnChangeWeight={handleOnChangeWeight}
+            with_weight={with_weight}
             t={t}
           />
         );
+      });
+    }
+  };
+
+  const handleOnChangeWeight = (event, question) => {
+    question.weighing = Number(event.target.value);
+    let arr = [...questions];
+    const found = questions.findIndex(s => {
+      return s.key === question.key;
+    });
+    arr[found] = question;
+    setWeightErrors(arr);
+    setQuestions(arr);
+  };
+
+  const setWeightErrors = questions => {
+    const total = calculateTotalWeight(questions);
+
+    if (total === 100) {
+      questions.map(q => {
+        if (q.errors && q.errors.weighing) {
+          q.errors.weighing = [];
+        }
+        return q;
+      });
+    } else {
+      questions.map(q => {
+        if (q.errors) {
+          q.errors["weighing"] = [
+            "La suma del peso de cada pregunta no debe ser diferente a 100"
+          ];
+        } else {
+          q["errors"] = {};
+          q.errors["weighing"] = [
+            "La suma del peso de cada pregunta no debe ser diferente a 100"
+          ];
+        }
+        return q;
       });
     }
   };
@@ -69,6 +115,15 @@ const MultipleForm = props => {
       question.value_type
     );
 
+    const weightError =
+      calculateTotalWeight(questions) === 100
+        ? []
+        : {
+            weighing: [
+              "La suma del peso de cada pregunta no debe ser diferente a 100"
+            ]
+          };
+
     const new_question = {
       description: question.description,
       order: question.order,
@@ -76,7 +131,8 @@ const MultipleForm = props => {
       killer_condition: question.killer_condition,
       options: options,
       killer_value: killer_value,
-      errors: question.errors || [],
+      errors: question.errors || weightError,
+      weighing: question.weighing,
       key: question.key
     };
     return new_question;
@@ -136,6 +192,16 @@ const MultipleForm = props => {
       {renderAddButton()}
     </div>
   );
+};
+
+const calculateTotalWeight = qs => {
+  if (qs.length === 0) {
+    return 0;
+  } else {
+    return qs.reduce((total, question) => {
+      return { weighing: total.weighing + question.weighing };
+    }).weighing;
+  }
 };
 
 export default memo(MultipleForm);

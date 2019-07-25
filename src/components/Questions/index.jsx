@@ -4,7 +4,6 @@ import MultipleForm from "./multiple_form.jsx";
 
 const Questions = props => {
   const [t] = useTranslation();
-
   if (t) {
     return (
       <div className="preview">
@@ -12,6 +11,7 @@ const Questions = props => {
           questions={props.questions}
           t={t}
           name={props.form_name || "project[questions_attributes]"}
+          with_weight={props.with_weight}
         />
       </div>
     );

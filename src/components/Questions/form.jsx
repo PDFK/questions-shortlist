@@ -7,7 +7,7 @@ import AnswerInput from "./answer_input.jsx";
 import PropTypes from "prop-types";
 
 const QuestionForm = props => {
-  const { question, deleteQuestion, t, name } = props;
+  const { question, deleteQuestion, t, name, with_weight } = props;
   const [value_type, setValueType] = useState(question.value_type);
   const [description, setDescription] = useState(question.description || "");
   const [killer_condition, setKillerCondition] = useState(
@@ -130,6 +130,29 @@ const QuestionForm = props => {
     }
   };
 
+  const drawWeight = () => {
+    if (with_weight) {
+      return (
+        <div className="form-group col-sm-12 col-md-2">
+          <label htmlFor={`${name}[weighing]`}>
+            {t("questions.attributes.weighing")}
+          </label>
+          <input
+            type="number"
+            name={`${name}[weighing]`}
+            className="form-control"
+            onChange={e => props.handleOnChangeWeight(e, question)}
+            step=".01"
+            min="0"
+            max="100"
+            defaultValue={question.weighing}
+          />
+          <InputError attr="weighing" errors={question.errors} />
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="row">
       <div className="col-sm-12">
@@ -147,7 +170,7 @@ const QuestionForm = props => {
           </div>
           <div className="card-body pt-0">
             <div className="row">
-              <div className="form-group col-sm-12">
+              <div className="form-group col">
                 <label htmlFor="" className="label-bold">
                   {t("questions.attributes.description")}
                 </label>
@@ -160,6 +183,7 @@ const QuestionForm = props => {
                 />
                 <InputError attr="description" errors={question.errors} />
               </div>
+              {drawWeight()}
             </div>
             <div className="row d-flex">
               <input
