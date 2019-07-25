@@ -249,7 +249,7 @@ class KillerValueInput extends React.Component {
                 data-toggle="tooltip"
                 data-placement="top"
               >
-                <i className="fas fa-info-circle" />
+                <i className="fas fa fa-info-circle" />
               </a>
             </div>
           </div>
