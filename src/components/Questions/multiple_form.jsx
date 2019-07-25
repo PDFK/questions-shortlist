@@ -1,73 +1,128 @@
-import React from 'react';
-import QuestionForm from './form.jsx';
+import React, { useState, useEffect, memo } from "react";
+import QuestionForm from "./form.jsx";
 
-class MultipleForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      questions: props.questions || [],
-    };
-    this.handleClick = this.handleClick.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.drawQuestionForm = this.drawQuestionForm.bind(this);
-  }
+const MultipleForm = props => {
+  const { name, t, with_weight } = props;
+  const [questions, setQuestions] = useState([]);
 
-  handleClick(event) {
+  useEffect(() => {
+    let questionsTemp = [...props.questions];
+    questionsTemp.forEach(question => {
+      const key = Math.floor(Math.random() * 1000000000000);
+      question.hasOwnProperty("key") ? question : (question["key"] = key);
+    });
+    setQuestions(questionsTemp);
+  }, []);
+
+  const handleClick = event => {
     event.preventDefault();
-    const key =  Math.floor((Math.random()*1000000000000));
-    let questions = this.state.questions;
-    const order = questions.length + 1;
-    questions.push({id: '', value_type: 'string', killer_condition: '==', options: [], killer_value: '', key: key, order: order});
-    this.setState({ questions: questions});
-  }
+    const key = Math.floor(Math.random() * 1000000000000);
+    let questionsTemp = [...questions];
+    const order = questionsTemp.length + 1;
+    const total = calculateTotalWeight(questionsTemp);
+    const weighing = 100 - total;
+    questionsTemp.push({
+      id: "",
+      value_type: "string",
+      killer_condition: "==",
+      options: [],
+      killer_value: "",
+      key: key,
+      weighing: weighing,
+      order: order
+    });
+    setWeightErrors(questionsTemp);
+    setQuestions(questionsTemp);
+  };
 
-  handleDelete(key) {
-    var arr = [].concat(this.state.questions);
-    var found = this.state.questions.findIndex(function(s) {
-      return s.key == key
+  const handleDelete = key => {
+    var arr = [].concat(questions);
+    var found = questions.findIndex(s => {
+      return s.key === key;
     });
 
-    arr.splice(found,1);
-    this.setState({questions: arr});
-  }
+    arr.splice(found, 1);
+    setWeightErrors(arr);
+    setQuestions(arr);
+  };
 
-  componentDidMount() {
-    this.state.questions.forEach(function(question, index) {
-      let key =  Math.floor((Math.random()*1000000000000));
-      question.hasOwnProperty('key') ? question : question["key"] = key;
-    });
-    this.setState({questions: this.state.questions});
-  }
-
-  drawQuestionForm() {
-    const questions = this.state.questions;
-    const { name , t } = this.props;
-    const handleDelete = this.handleDelete;
-    const _this = this;
-
-    if(questions.length > 0)
-    {
-      return (questions.map(function (question, index){
-        const _question =  _this.questionFormat(question);
+  const drawQuestionForm = () => {
+    if (questions.length > 0) {
+      return questions.map((question, index) => {
+        const _question = questionFormat(question);
         return (
-            <QuestionForm
-              key={ _question.key || index }
-              name={ `${name}[${_question.key}]` }
-              question={ _question }
-              deleteQuestion={ handleDelete }
-              t={ t }
-            />
-          )
-        })
-      )
+          <QuestionForm
+            key={_question.key || index}
+            name={`${name}[${_question.key}]`}
+            question={_question}
+            deleteQuestion={handleDelete}
+            handleOnChangeWeight={handleOnChangeWeight}
+            with_weight={with_weight}
+            t={t}
+          />
+        );
+      });
     }
-  }
+  };
 
-  questionFormat(question) {
-    const options = question.options && Array.isArray(question.options) ? question.options.map(function(item){
-      return {value: item, label: item};
-    }) : [];
-    const killer_value = this.killerValueFormat(question.killer_value, question.value_type);
+  const handleOnChangeWeight = (event, question) => {
+    question.weighing = Number(event.target.value);
+    let arr = [...questions];
+    const found = questions.findIndex(s => {
+      return s.key === question.key;
+    });
+    arr[found] = question;
+    setWeightErrors(arr);
+    setQuestions(arr);
+  };
+
+  const setWeightErrors = questions => {
+    const total = calculateTotalWeight(questions);
+
+    if (total === 100) {
+      questions.map(q => {
+        if (q.errors && q.errors.weighing) {
+          q.errors.weighing = [];
+        }
+        return q;
+      });
+    } else {
+      questions.map(q => {
+        if (q.errors) {
+          q.errors["weighing"] = [
+            "La suma del peso de cada pregunta no debe ser diferente a 100"
+          ];
+        } else {
+          q["errors"] = {};
+          q.errors["weighing"] = [
+            "La suma del peso de cada pregunta no debe ser diferente a 100"
+          ];
+        }
+        return q;
+      });
+    }
+  };
+
+  const questionFormat = question => {
+    const options =
+      question.options && Array.isArray(question.options)
+        ? question.options.map(function(item) {
+            return { value: item, label: item };
+          })
+        : [];
+    const killer_value = killerValueFormat(
+      question.killer_value,
+      question.value_type
+    );
+
+    const weightError =
+      calculateTotalWeight(questions) === 100
+        ? []
+        : {
+            weighing: [
+              "La suma del peso de cada pregunta no debe ser diferente a 100"
+            ]
+          };
 
     const new_question = {
       description: question.description,
@@ -76,69 +131,77 @@ class MultipleForm extends React.Component {
       killer_condition: question.killer_condition,
       options: options,
       killer_value: killer_value,
-      errors: question.errors || [],
+      errors: question.errors || weightError,
+      weighing: question.weighing,
       key: question.key
-    }
+    };
     return new_question;
-  }
+  };
 
-  killerValueFormat(killer_value, value_type) {
+  const killerValueFormat = (killer_value, value_type) => {
     let values = killer_value;
-    switch(value_type){
+    switch (value_type) {
       case "boolean":
       case "option":
       case "multiple_option":
-          if (Array.isArray(values)) {
-            values = values.map(function(item){
-              return {value: item, label: item};
-            });
-          }
-          else {
-            values = values.split(";");
-            values = values.map(function(item){
-              return {value: item, label: item};
-            });
-          }
-          break;
+        if (Array.isArray(values)) {
+          values = values.map(item => {
+            return { value: item, label: item };
+          });
+        } else {
+          values = values.split(";");
+          values = values.map(item => {
+            return { value: item, label: item };
+          });
+        }
+        break;
       case "range":
-          values = values.split(",");
-          break;
+        values = values.split(",");
+        break;
       default:
-          values;
+        values;
     }
     return values;
-  }
+  };
 
-  renderAddButton() {
-    const {t} = this.props;
-    return(
+  const renderAddButton = () => {
+    return (
       <div className="col-12 form-group">
-        <button className="btn btn-secondary" onClick={ this.handleClick } name="add_question">
-          <i className="fas fa-plus"></i> &nbsp;
-          { t('questions.action.add') }
+        <button
+          className="btn btn-secondary"
+          onClick={handleClick}
+          name="add_question"
+        >
+          <i className="fa fas fa-plus" /> &nbsp;
+          {t("questions.action.add")}
         </button>
       </div>
-    )
-  }
-
-  render() {
-    const {t} = this.props;
-    return (
-      <div id="questions">
-        <div className="row mt-5">
-          <div className="form-group col-sm-12">
-            <h3 className="p-2 mb-2 bg-primary text-white h5">
-              <strong>
-                { t('questions.html_helpers.others') }
-              </strong>
-            </h3>
-          </div>
-        </div>
-        { this.drawQuestionForm() }
-        { this.renderAddButton() }
-      </div>
     );
+  };
+
+  return (
+    <div id="questions">
+      <div className="row mt-5">
+        <div className="form-group col-sm-12">
+          <h3 className="p-2 mb-2 bg-primary text-white h5">
+            <strong>{t("questions.html_helpers.others")}</strong>
+          </h3>
+        </div>
+      </div>
+      {drawQuestionForm()}
+      {renderAddButton()}
+    </div>
+  );
+};
+
+const calculateTotalWeight = qs => {
+  if (qs.length === 0) {
+    return 0;
+  } else {
+    return qs.reduce((total, question) => {
+      return { weighing: total.weighing + question.weighing };
+    }).weighing;
   }
 };
 
-export default MultipleForm;
+export default memo(MultipleForm);

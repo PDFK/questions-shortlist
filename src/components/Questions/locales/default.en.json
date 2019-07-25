@@ -51,6 +51,7 @@
     },
     "attributes": {
       "description": "Text of the question to be asked",
+      "weighing": "Question weighing",
       "killer_condition": "Discard when the answer is...",
       "killer_condition_multiple": "Discard when...",
       "killer_value": "Expected value to discard",
