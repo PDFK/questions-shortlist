@@ -150,11 +150,20 @@ const QuestionForm = props => {
           <InputError attr="weighing" errors={question.errors} />
         </div>
       );
+    } else {
+      return (
+        <input
+          type="hidden"
+          name={`${name}[weighing]`}
+          className="form-control"
+          defaultValue={question.weighing}
+        />
+      );
     }
   };
 
   return (
-    <div className="row">
+    <div className={`row ${question._destroy ? "d-none" : ""}`}>
       <div className="col-sm-12">
         <div className="card hover-card mb-3">
           <div className="float-right">
@@ -186,12 +195,6 @@ const QuestionForm = props => {
               {drawWeight()}
             </div>
             <div className="row d-flex">
-              <input
-                type="hidden"
-                name={`${name}[order]`}
-                value={question.order}
-              />
-
               <div className="form-group flex-fill px-3">
                 <label htmlFor="" className="label-bold">
                   {t("questions.attributes.value_type")}
@@ -216,6 +219,13 @@ const QuestionForm = props => {
             options={options}
             killer_condition={killer_condition}
             killer_value={killer_value}
+          />
+          <input type="hidden" name={`${name}[id]`} value={question.id} />
+          <input type="hidden" name={`${name}[order]`} value={question.order} />
+          <input
+            type="hidden"
+            name={`${name}[_destroy]`}
+            value={question._destroy}
           />
         </div>
       </div>

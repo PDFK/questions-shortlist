@@ -19,8 +19,14 @@ const MultipleForm = props => {
     const key = Math.floor(Math.random() * 1000000000000);
     let questionsTemp = [...questions];
     const order = questionsTemp.length + 1;
-    const total = calculateTotalWeight(questionsTemp);
-    const weighing = 100 - total;
+    let weighing;
+
+    if (with_weight) {
+      weighing = 100 - calculateTotalWeight(questionsTemp);
+    } else {
+      weighing = "";
+    }
+
     questionsTemp.push({
       id: "",
       value_type: "string",
@@ -31,25 +37,38 @@ const MultipleForm = props => {
       weighing: weighing,
       order: order
     });
-    setWeightErrors(questionsTemp);
+
+    if (with_weight) {
+      setWeightErrors(questionsTemp);
+    } else {
+      resetWeighing(questionsTemp);
+    }
+
     setQuestions(questionsTemp);
   };
 
   const handleDelete = key => {
-    var arr = [].concat(questions);
-    var found = questions.findIndex(s => {
+    let arr = [].concat(questions);
+    let found = questions.findIndex(s => {
       return s.key === key;
     });
 
-    arr.splice(found, 1);
-    setWeightErrors(arr);
+    if (arr[found].id == "" || typeof arr[found].id == undefined)
+      arr.splice(found, 1);
+    else arr[found]["_destroy"] = true;
+
+    if (with_weight) {
+      setWeightErrors(arr);
+    } else {
+      resetWeighing(arr);
+    }
     setQuestions(arr);
   };
 
   const drawQuestionForm = () => {
     if (questions.length > 0) {
       return questions.map((question, index) => {
-        const _question = questionFormat(question);
+        const _question = questionFormat(question, index);
         return (
           <QuestionForm
             key={_question.key || index}
@@ -74,6 +93,13 @@ const MultipleForm = props => {
     arr[found] = question;
     setWeightErrors(arr);
     setQuestions(arr);
+  };
+
+  const resetWeighing = questions => {
+    questions.map((question, index) => {
+      question.weighing = "";
+      return question;
+    });
   };
 
   const setWeightErrors = questions => {
@@ -103,7 +129,7 @@ const MultipleForm = props => {
     }
   };
 
-  const questionFormat = question => {
+  const questionFormat = (question, index) => {
     const options =
       question.options && Array.isArray(question.options)
         ? question.options.map(function(item) {
@@ -125,15 +151,17 @@ const MultipleForm = props => {
           };
 
     const new_question = {
+      id: question.id,
       description: question.description,
-      order: question.order,
+      order: index,
       value_type: question.value_type,
       killer_condition: question.killer_condition,
       options: options,
       killer_value: killer_value,
       errors: question.errors || weightError,
       weighing: question.weighing,
-      key: question.key
+      key: question.key,
+      _destroy: question._destroy || false
     };
     return new_question;
   };
