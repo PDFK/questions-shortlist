@@ -253,8 +253,8 @@ class KillerValueInput extends React.Component {
               </a>
             </div>
           </div>
+          <InputError attr="killer_value" errors={this.props.question.errors} />
         </div>
-        <InputError attr="killer_value" errors={this.props.question.errors} />
       </div>
     );
   }
