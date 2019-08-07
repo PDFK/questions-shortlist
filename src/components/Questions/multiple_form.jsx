@@ -53,7 +53,11 @@ const MultipleForm = props => {
       return s.key === key;
     });
 
-    if (arr[found].id == "" || typeof arr[found].id == undefined)
+    if (
+      arr[found].id == "" ||
+      typeof arr[found].id == "undefined" ||
+      arr[found].id == undefined
+    )
       arr.splice(found, 1);
     else arr[found]["_destroy"] = true;
 
@@ -72,7 +76,7 @@ const MultipleForm = props => {
         return (
           <QuestionForm
             key={_question.key || index}
-            name={`${name}[${_question.key}]`}
+            name={`${name}[${index}]`}
             question={_question}
             deleteQuestion={handleDelete}
             handleOnChangeWeight={handleOnChangeWeight}
@@ -108,7 +112,7 @@ const MultipleForm = props => {
     if (total === 100) {
       questions.map(q => {
         if (q.errors && q.errors.weighing) {
-          q.errors.weighing = [];
+          delete q.errors.weighing;
         }
         return q;
       });

@@ -176,7 +176,9 @@ class AnswerInput extends React.Component {
         const killer_date = Date.parse(killer_value);
         return eval(`${answer_date} ${killer_condition} ${killer_date}`);
       case "int":
-        return eval(`${value} ${killer_condition} ${killer_value}`);
+        return eval(
+          `${Number(value)} ${killer_condition} ${Number(killer_value)}`
+        );
       case "option":
       case "multiple_option":
         const answer_options = Array.isArray(value)

@@ -134,7 +134,7 @@ const QuestionForm = props => {
     if (with_weight) {
       return (
         <div className="form-group col-sm-12 col-md-2">
-          <label htmlFor={`${name}[weighing]`}>
+          <label className="label-bold" htmlFor={`${name}[weighing]`}>
             {t("questions.attributes.weighing")}
           </label>
           <input
