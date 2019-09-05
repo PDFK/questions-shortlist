@@ -1,5 +1,8 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
+import update from "immutability-helper";
 import QuestionForm from "./form.jsx";
+import HTML5Backend from "react-dnd-html5-backend";
+import { DndProvider } from "react-dnd";
 
 const MultipleForm = props => {
   const { name, t, with_weight } = props;
@@ -81,6 +84,9 @@ const MultipleForm = props => {
             deleteQuestion={handleDelete}
             handleOnChangeWeight={handleOnChangeWeight}
             with_weight={with_weight}
+            moveCard={moveCard}
+            index={index}
+            id={_question.id || index}
             t={t}
           />
         );
@@ -211,6 +217,18 @@ const MultipleForm = props => {
     );
   };
 
+  const moveCard = useCallback(
+    (dragIndex, hoverIndex) => {
+      const dragQuestion = questions[dragIndex];
+      setQuestions(
+        update(questions, {
+          $splice: [[dragIndex, 1], [hoverIndex, 0, dragQuestion]]
+        })
+      );
+    },
+    [questions]
+  );
+
   return (
     <div id="questions">
       <div className="row mt-5">
@@ -220,7 +238,7 @@ const MultipleForm = props => {
           </h3>
         </div>
       </div>
-      {drawQuestionForm()}
+      <DndProvider backend={HTML5Backend}>{drawQuestionForm()}</DndProvider>
       {renderAddButton()}
     </div>
   );
