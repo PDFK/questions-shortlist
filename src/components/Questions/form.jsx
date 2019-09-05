@@ -258,7 +258,7 @@ const QuestionForm = props => {
               }}
             >
               <i className={`fas fa-chevron-${collapsed}`} />
-              {` Ver ${collapsed == "up" ? "menos" : "más"} `}
+              {` Ver ${collapsed == "up" ? "menos" : `más "${description}"`} `}
             </button>
           </div>
           <div
