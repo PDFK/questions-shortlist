@@ -5,18 +5,22 @@ import KillerValueInput from "./killer_value_input.jsx";
 import InputError from "./error.jsx";
 import AnswerInput from "./answer_input.jsx";
 import PropTypes from "prop-types";
+import { useDrag, useDrop } from "react-dnd";
 
 const QuestionForm = props => {
-  const { question, deleteQuestion, t, name, with_weight } = props;
+  const { question, deleteQuestion, t, name, with_weight, index, id } = props;
   const [value_type, setValueType] = useState(question.value_type);
   const [description, setDescription] = useState(question.description || "");
   const [killer_condition, setKillerCondition] = useState(
     question.killer_condition
   );
   const [options, setOptions] = useState(question.options || []);
+  const [collapsed, setCollapsed] = useState("up");
+
   const [killer_value, setKillerValue] = useState(question.killer_value);
   const answerinputElement = useRef(null);
   const killervalueinputElement = useRef(null);
+  const ref = useRef(null);
 
   const handleDelete = event => {
     event.preventDefault();
@@ -162,8 +166,70 @@ const QuestionForm = props => {
     }
   };
 
+  const [, drop] = useDrop({
+    accept: "card",
+    hover(item, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+      // Determine rectangle on screen
+      const hoverBoundingRect = ref.current.getBoundingClientRect();
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
+      // Get pixels to the top
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move when the cursor is above 50%
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+      // Time to actually perform the action
+      props.moveCard(dragIndex, hoverIndex);
+      // Note: we're mutating the monitor item here!
+      // Generally it's better to avoid mutations,
+      // but it's good here for the sake of performance
+      // to avoid expensive index searches.
+      item.index = hoverIndex;
+    }
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: "card", id: index, index: question.order },
+    collect: monitor => ({
+      isDragging: monitor.isDragging()
+    })
+  });
+  drag(drop(ref));
+
+  const style = {
+    backgroundColor: "white",
+    cursor: "move"
+  };
+  const opacity = isDragging ? 0 : 1;
+
   return (
-    <div className={`row ${question._destroy ? "d-none" : ""}`}>
+    <div
+      ref={ref}
+      style={{ ...style, opacity }}
+      className={`row ${
+        question._destroy && JSON.parse(question._destroy) ? "d-none" : ""
+      }`}
+    >
       <div className="col-sm-12">
         <div className="card hover-card mb-3">
           <div className="float-right">
@@ -176,57 +242,84 @@ const QuestionForm = props => {
               {" "}
               <i className="fa fas fa-trash h6" alt="borrar" />
             </button>
+            <button
+              className="btn btn-link collapsed"
+              type="button"
+              data-toggle="collapse"
+              data-target={`#collapse-${index}`}
+              aria-expanded={false}
+              aria-controls={`collapse-${index}`}
+              onClick={event => {
+                const x = JSON.parse(event.target.getAttribute("aria-expanded"))
+                  ? "up"
+                  : "down";
+                setCollapsed(x);
+                console.log(x);
+              }}
+            >
+              <i className={`fas fa-chevron-${collapsed}`} />
+              {` Ver ${collapsed == "up" ? "menos" : "más"} `}
+            </button>
           </div>
-          <div className="card-body pt-0">
-            <div className="row">
-              <div className="form-group col">
-                <label htmlFor="" className="label-bold">
-                  {t("questions.attributes.description")}
-                </label>
-                <input
-                  type="text"
-                  name={`${name}[description]`}
-                  className="form-control"
-                  value={description}
-                  onChange={handleInputChange}
-                />
-                <InputError attr="description" errors={question.errors} />
+          <div
+            id={`collapse-${index}`}
+            className="collapse show multi-collapse"
+          >
+            <div className="card-body pt-0">
+              <div className="row">
+                <div className="form-group col">
+                  <label htmlFor="" className="label-bold">
+                    {t("questions.attributes.description")}
+                  </label>
+                  <input
+                    type="text"
+                    name={`${name}[description]`}
+                    className="form-control"
+                    value={description}
+                    onChange={handleInputChange}
+                  />
+                  <InputError attr="description" errors={question.errors} />
+                </div>
+                {drawWeight()}
               </div>
-              {drawWeight()}
-            </div>
-            <div className="row d-flex">
-              <div className="form-group flex-fill px-3">
-                <label htmlFor="" className="label-bold">
-                  {t("questions.attributes.value_type")}
-                </label>
-                {drawValueType()}
-                <InputError attr="value_type" errors={question.errors} />
-              </div>
+              <div className="row d-flex">
+                <div className="form-group flex-fill px-3">
+                  <label htmlFor="" className="label-bold">
+                    {t("questions.attributes.value_type")}
+                  </label>
+                  {drawValueType()}
+                  <InputError attr="value_type" errors={question.errors} />
+                </div>
 
-              <div className="form-group flex-fill px-3">
-                {drawKillerCondition()}
-              </div>
-              <div className="form-group flex-fill px-3">
-                {drawKillerValue()}
+                <div className="form-group flex-fill px-3">
+                  {drawKillerCondition()}
+                </div>
+                <div className="form-group flex-fill px-3">
+                  {drawKillerValue()}
+                </div>
               </div>
             </div>
+            <AnswerInput
+              t={t}
+              ref={answerinputElement}
+              description={description}
+              selected_option={value_type}
+              options={options}
+              killer_condition={killer_condition}
+              killer_value={killer_value}
+            />
+            <input type="hidden" name={`${name}[id]`} value={question.id} />
+            <input
+              type="hidden"
+              name={`${name}[order]`}
+              value={question.order}
+            />
+            <input
+              type="hidden"
+              name={`${name}[_destroy]`}
+              value={question._destroy}
+            />
           </div>
-          <AnswerInput
-            t={t}
-            ref={answerinputElement}
-            description={description}
-            selected_option={value_type}
-            options={options}
-            killer_condition={killer_condition}
-            killer_value={killer_value}
-          />
-          <input type="hidden" name={`${name}[id]`} value={question.id} />
-          <input type="hidden" name={`${name}[order]`} value={question.order} />
-          <input
-            type="hidden"
-            name={`${name}[_destroy]`}
-            value={question._destroy}
-          />
         </div>
       </div>
     </div>
