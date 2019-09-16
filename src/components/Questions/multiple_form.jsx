@@ -3,10 +3,12 @@ import update from "immutability-helper";
 import QuestionForm from "./form.jsx";
 import HTML5Backend from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
+import Cookies from "js-cookie";
 
 const MultipleForm = props => {
-  const { name, t, with_weight } = props;
+  const { name, t, i18n, with_weight, with_audio } = props;
   const [questions, setQuestions] = useState([]);
+  const [collapseQuestions, setcollapseQuestions] = useState("up");
 
   useEffect(() => {
     let questionsTemp = [...props.questions];
@@ -15,6 +17,8 @@ const MultipleForm = props => {
       question.hasOwnProperty("key") ? question : (question["key"] = key);
     });
     setQuestions(questionsTemp);
+    const translation = Cookies.get("my_locale") || "es";
+    i18n.changeLanguage(translation);
   }, []);
 
   const handleClick = event => {
@@ -72,18 +76,24 @@ const MultipleForm = props => {
     setQuestions(arr);
   };
 
+  const handleCollapseQuestions = () => {
+    setcollapseQuestions(collapseQuestions === "up" ? "down" : "up");
+  };
+
   const drawQuestionForm = () => {
     if (questions.length > 0) {
       return questions.map((question, index) => {
         const _question = questionFormat(question, index);
         return (
           <QuestionForm
+            collapseQuestion={collapseQuestions}
             key={_question.key || index}
             name={`${name}[${index}]`}
             question={_question}
             deleteQuestion={handleDelete}
             handleOnChangeWeight={handleOnChangeWeight}
             with_weight={with_weight}
+            with_audio={with_audio}
             moveCard={moveCard}
             index={index}
             id={_question.id || index}
@@ -94,15 +104,21 @@ const MultipleForm = props => {
     }
   };
 
-  const handleOnChangeWeight = (event, question) => {
-    question.weighing = Number(event.target.value);
+  const handleOnChangeWeight = (event, question, resetAll = false) => {
     let arr = [...questions];
     const found = questions.findIndex(s => {
       return s.key === question.key;
     });
-    arr[found] = question;
-    setWeightErrors(arr);
-    setQuestions(arr);
+    if (resetAll) {
+      arr[found] = question;
+      resetWeighing(arr);
+      setQuestions(arr);
+    } else {
+      question.weighing = Number(event.target.value);
+      arr[found] = question;
+      setWeightErrors(arr);
+      setQuestions(arr);
+    }
   };
 
   const resetWeighing = questions => {
@@ -165,7 +181,7 @@ const MultipleForm = props => {
       description: question.description,
       order: index,
       value_type: question.value_type,
-      killer_condition: question.killer_condition,
+      killer_condition: question.killer_condition || "",
       options: options,
       killer_value: killer_value,
       errors: question.errors || weightError,
@@ -194,7 +210,19 @@ const MultipleForm = props => {
         }
         break;
       case "range":
-        values = values.split(",");
+        if (Array.isArray(values)) {
+          values = values.map(item => {
+            return { value: item, label: item };
+          });
+        } else {
+          values = values.split(",");
+          values = values.map(item => {
+            return { value: item, label: item };
+          });
+        }
+        break;
+      case "audio":
+        values = "";
         break;
       default:
         values;
@@ -207,6 +235,7 @@ const MultipleForm = props => {
       <div className="col-12 form-group">
         <button
           className="btn btn-secondary"
+          type="button"
           onClick={handleClick}
           name="add_question"
         >
@@ -235,6 +264,19 @@ const MultipleForm = props => {
         <div className="form-group col-sm-12">
           <h3 className="p-2 mb-2 bg-primary text-white h5">
             <strong>{t("questions.html_helpers.others")}</strong>
+            <button
+              className="btn btn-link float-right text-white"
+              type="button"
+              onClick={handleCollapseQuestions}
+            >
+              <i className={`fas fa-chevron-${collapseQuestions}`} />
+              &nbsp;
+              {`${
+                collapseQuestions == "up"
+                  ? t("questions.html_helpers.min")
+                  : t("questions.html_helpers.max")
+              } ${t("questions.html_helpers.all_questions")}`}
+            </button>
           </h3>
         </div>
       </div>
@@ -248,7 +290,10 @@ const calculateTotalWeight = qs => {
   if (qs.length === 0) {
     return 0;
   } else {
-    return qs.reduce((total, question) => {
+    const array = qs.filter(q => {
+      return q.value_type != "audio";
+    });
+    return array.reduce((total, question) => {
       return { weighing: total.weighing + question.weighing };
     }).weighing;
   }

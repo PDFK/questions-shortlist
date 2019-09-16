@@ -109,6 +109,8 @@ class AnswerInput extends React.Component {
             />
           </div>
         );
+      case "audio":
+        return null;
       default:
         return (
           <input

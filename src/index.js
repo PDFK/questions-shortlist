@@ -10,6 +10,8 @@ const MultipleQuestions = props => {
         questions={props.questions || []}
         form_name={props.form_name}
         with_weight={props.with_weight || false}
+        with_audio={props.with_audio || false}
+        i18n={i18n}
       />
     </I18nextProvider>
   );
