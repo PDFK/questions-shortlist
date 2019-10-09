@@ -12,6 +12,8 @@ const Questions = props => {
           t={t}
           name={props.form_name || "project[questions_attributes]"}
           with_weight={props.with_weight}
+          with_audio={props.with_audio}
+          i18n={props.i18n}
         />
       </div>
     );

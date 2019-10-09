@@ -9,7 +9,8 @@
         "range": "Un rango",
         "currency": "Moneda",
         "option": "Selección Simple",
-        "multiple_option": "Selección Multiple"
+        "multiple_option": "Selección Multiple",
+        "audio": "Audio"
       },
       "killer_condition_types": {
         "smaller_than": "Menor Que",
@@ -54,7 +55,15 @@
       "range_option": {
         "initial": "Valor Inicial",
         "final": "Valor Final"
-      }
+      },
+      "max": "maximizar",
+      "min": "minimizar",
+      "less": "menos",
+      "more": "más",
+      "show": "ver",
+      "all_questions": " todas las preguntas",
+      "delete_question": "Borrar Pregunta",
+      "delete": "Borrar"
     },
     "attributes": {
       "description": "Texto de la pregunta a realizar",

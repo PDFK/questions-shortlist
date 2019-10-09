@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import Select from "react-select";
 import KillerConditionSelect from "./killer_condition_select.jsx";
 import KillerValueInput from "./killer_value_input.jsx";
@@ -8,19 +8,32 @@ import PropTypes from "prop-types";
 import { useDrag, useDrop } from "react-dnd";
 
 const QuestionForm = props => {
-  const { question, deleteQuestion, t, name, with_weight, index, id } = props;
+  const {
+    question,
+    deleteQuestion,
+    t,
+    name,
+    with_weight,
+    with_audio,
+    index,
+    id,
+    collapseQuestion
+  } = props;
   const [value_type, setValueType] = useState(question.value_type);
   const [description, setDescription] = useState(question.description || "");
   const [killer_condition, setKillerCondition] = useState(
     question.killer_condition
   );
   const [options, setOptions] = useState(question.options || []);
-  const [collapsed, setCollapsed] = useState("up");
-
+  const [collapsed, setCollapsed] = useState(collapseQuestion);
   const [killer_value, setKillerValue] = useState(question.killer_value);
   const answerinputElement = useRef(null);
   const killervalueinputElement = useRef(null);
   const ref = useRef(null);
+
+  useEffect(() => {
+    setCollapsed(collapseQuestion);
+  }, [collapseQuestion]);
 
   const handleDelete = event => {
     event.preventDefault();
@@ -28,7 +41,7 @@ const QuestionForm = props => {
   };
 
   const drawValueType = () => {
-    const options = [
+    let options = [
       { value: "date", label: t("questions.select_options.value_types.date") },
       {
         value: "string",
@@ -57,6 +70,12 @@ const QuestionForm = props => {
       }
     ];
 
+    if (with_audio)
+      options.push({
+        value: "audio",
+        label: t("questions.select_options.value_types.audio")
+      });
+
     const value =
       options.find(item => {
         return item.value === value_type;
@@ -64,7 +83,9 @@ const QuestionForm = props => {
 
     return (
       <Select
-        options={options}
+        options={options.sort((o1, o2) => {
+          return o1.label.localeCompare(o2.label);
+        })}
         onChange={handleValueType}
         name={`${name}[value_type]`}
         value={value}
@@ -75,8 +96,18 @@ const QuestionForm = props => {
 
   const handleValueType = selectedOption => {
     const option = selectedOption.value;
-    killervalueinputElement.current.resetValues();
-    answerinputElement.current.resetValues();
+    if (value_type != "audio") {
+      killervalueinputElement.current.resetValues();
+      answerinputElement.current.resetValues();
+    }
+    if (option === "audio") {
+      question.value_type = option;
+      props.handleOnChangeWeight(null, question, true);
+      const elements = document.getElementsByClassName("weighing");
+      for (let item of elements) {
+        item.value = "";
+      }
+    }
     setValueType(option);
     setKillerCondition("");
     setKillerValue("");
@@ -87,29 +118,37 @@ const QuestionForm = props => {
   };
 
   const drawKillerCondition = () => {
-    return (
-      <KillerConditionSelect
-        t={t}
-        selected_option={value_type}
-        killer_condition={killer_condition}
-        question={question}
-        name={name}
-        handleChangeStatus={handleChangeStatus}
-      />
-    );
+    if (value_type === "audio") {
+      return null;
+    } else {
+      return (
+        <KillerConditionSelect
+          t={t}
+          selected_option={value_type}
+          killer_condition={killer_condition}
+          question={question}
+          name={name}
+          handleChangeStatus={handleChangeStatus}
+        />
+      );
+    }
   };
 
   const drawKillerValue = () => {
-    return (
-      <KillerValueInput
-        t={t}
-        ref={killervalueinputElement}
-        selected_option={value_type}
-        question={question}
-        name={name}
-        handleChangeStatus={handleChangeStatus}
-      />
-    );
+    if (value_type === "audio") {
+      return null;
+    } else {
+      return (
+        <KillerValueInput
+          t={t}
+          ref={killervalueinputElement}
+          selected_option={value_type}
+          question={question}
+          name={name}
+          handleChangeStatus={handleChangeStatus}
+        />
+      );
+    }
   };
 
   const handleChangeStatus = (key, value) => {
@@ -134,8 +173,13 @@ const QuestionForm = props => {
     }
   };
 
+  const handleOnChangeWeight = e => {
+    question.value_type = value_type;
+    props.handleOnChangeWeight(e, question);
+  };
+
   const drawWeight = () => {
-    if (with_weight) {
+    if (with_weight && value_type != "audio") {
       return (
         <div className="form-group col-sm-12 col-md-2">
           <label className="label-bold" htmlFor={`${name}[weighing]`}>
@@ -144,8 +188,8 @@ const QuestionForm = props => {
           <input
             type="number"
             name={`${name}[weighing]`}
-            className="form-control"
-            onChange={e => props.handleOnChangeWeight(e, question)}
+            className="form-control weighing"
+            onChange={e => handleOnChangeWeight(e)}
             step=".01"
             min="0"
             max="100"
@@ -236,34 +280,44 @@ const QuestionForm = props => {
             <button
               className="btn btn-sm btn-link text-danger float-right"
               onClick={handleDelete}
-              aria-label="Borrar Pregunta"
-              title="Borrar"
+              type="button"
+              aria-label={t("questions.html_helpers.delete_question")}
+              title={t("questions.html_helpers.delete")}
             >
-              {" "}
-              <i className="fa fas fa-trash h6" alt="borrar" />
+              <i
+                className="fa fas fa-trash h6"
+                alt={t("questions.html_helpers.delete")}
+              />
             </button>
             <button
-              className="btn btn-link collapsed"
+              className={`btn btn-link ${
+                collapsed === "up" ? "collapsed" : ""
+              }`}
               type="button"
               data-toggle="collapse"
               data-target={`#collapse-${index}`}
-              aria-expanded={false}
+              aria-expanded={collapsed === "up" ? true : false}
               aria-controls={`collapse-${index}`}
               onClick={event => {
                 const x = JSON.parse(event.target.getAttribute("aria-expanded"))
                   ? "up"
                   : "down";
                 setCollapsed(x);
-                console.log(x);
               }}
             >
               <i className={`fas fa-chevron-${collapsed}`} />
-              {` Ver ${collapsed == "up" ? "menos" : `más "${description}"`} `}
+              {` ${t("questions.html_helpers.show")} ${
+                collapsed == "up"
+                  ? t("questions.html_helpers.less")
+                  : t("questions.html_helpers.more")
+              } "${description}"`}
             </button>
           </div>
           <div
             id={`collapse-${index}`}
-            className="collapse show multi-collapse"
+            className={`collapse multi-collapse ${
+              collapsed === "up" ? "show" : ""
+            }`}
           >
             <div className="card-body pt-0">
               <div className="row">

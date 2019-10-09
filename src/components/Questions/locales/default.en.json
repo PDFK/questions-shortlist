@@ -9,7 +9,8 @@
         "range": "Range",
         "currency": "Currency",
         "option": "Single selecction",
-        "multiple_option": "Multiple selecction"
+        "multiple_option": "Multiple selecction",
+        "audio": "Audio"
       },
       "killer_condition_types": {
         "smaller_than": "Smaller Than",
@@ -38,6 +39,13 @@
         "option": "Select the option to discard",
         "multiple_option": "Select the options to discard"
       },
+      "answer_preview": {
+        "info": "Try how the discard will work with the answers.",
+        "state": {
+          "approved": "With this answer a ​​candidate would be Approved",
+          "discarded": "With this answer a ​​candidate would be Discarded"
+        }
+      },
       "others": "Questions",
       "one": "Question",
       "boolean_option": {
@@ -47,7 +55,15 @@
       "range_option": {
         "initial": "Initial value",
         "final": "Final value"
-      }
+      },
+      "max": "maximize",
+      "min": "minimize",
+      "less": "less",
+      "more": "more",
+      "show": "show",
+      "all_questions": " all questions",
+      "delete_question": "Delete question",
+      "delete": "Delete"
     },
     "attributes": {
       "description": "Text of the question to be asked",
@@ -60,7 +76,10 @@
       "options": "Question Options"
     },
     "action": {
-      "add": " Add question"
+      "add": " Add question",
+      "add_options": "Add Options",
+      "select": "Select",
+      "no_options": "No options"
     }
   }
 }

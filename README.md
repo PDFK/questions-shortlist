@@ -38,6 +38,8 @@ class Example extends Component {
 }
 ```
 
+If you want to have the component on English, set a cookie 'my_locale' with the value 'en'
+
 ## DEVELOP
 
 Put in **src/index.js**
