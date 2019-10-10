@@ -293,9 +293,13 @@ const calculateTotalWeight = qs => {
     const array = qs.filter(q => {
       return q.value_type != "audio";
     });
-    return array.reduce((total, question) => {
-      return { weighing: total.weighing + question.weighing };
-    }).weighing;
+    if (array.length > 0) {
+      return array.reduce((total, question) => {
+        return { weighing: total.weighing + question.weighing };
+      }).weighing;
+    } else {
+      return 0;
+    }
   }
 };
 
