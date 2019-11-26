@@ -269,7 +269,7 @@ const MultipleForm = props => {
               type="button"
               onClick={handleCollapseQuestions}
             >
-              <i className={`fas fa-chevron-${collapseQuestions}`} />
+              <i className={`fas fa fa-chevron-${collapseQuestions}`} />
               &nbsp;
               {`${
                 collapseQuestions == "up"

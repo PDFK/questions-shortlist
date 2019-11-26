@@ -305,7 +305,7 @@ const QuestionForm = props => {
                 setCollapsed(x);
               }}
             >
-              <i className={`fas fa-chevron-${collapsed}`} />
+              <i className={`fas fa fa-chevron-${collapsed}`} />
               {` ${t("questions.html_helpers.show")} ${
                 collapsed == "up"
                   ? t("questions.html_helpers.less")
