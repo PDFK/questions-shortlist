@@ -34,27 +34,36 @@ class AnswerInput extends React.Component {
 
     switch (selected_option) {
       case "currency":
+        const currency_value = Array.isArray(value)
+          ? value[0] !== ""
+            ? value[0]
+            : value[1]
+          : value;
         return (
           <CurrencyInput
-            value={value}
+            value={currency_value}
             precision="0"
             prefix="$"
-            thousandSeparator=","
+            thousandSeparator="."
             onChangeEvent={this.handleInputChange}
             className="form-control"
           />
         );
       case "range":
-        let answer_value = Array.isArray(value) ? value[0] : value;
+      case "int":
+        const int_value = Array.isArray(value)
+          ? value[0] != ""
+            ? value[0]
+            : value[1]
+          : value;
         return (
           <div className="col-sm-5 pr-0">
             <input
               onChange={this.handleInputChange}
-              value={answer_value}
+              value={int_value}
               className="form-control"
               type="number"
               min="0"
-              placeholder={t("questions.html_helpers.range_option.initial")}
             />
           </div>
         );
@@ -76,15 +85,6 @@ class AnswerInput extends React.Component {
             value={value}
             className="form-control"
             type="date"
-          />
-        );
-      case "int":
-        return (
-          <input
-            onChange={this.handleInputChange}
-            value={value}
-            className="form-control"
-            type="number"
           />
         );
       case "option":
@@ -151,24 +151,39 @@ class AnswerInput extends React.Component {
     this.setState({ options: value });
   }
 
+  evaluateRange(killer_value, value) {
+    const min = killer_value[0].replace(/[\$,\.]/gi, "");
+    const max = killer_value[1].replace(/[\$,\.]/gi, "");
+    const answer = value.replace(/[\$,\.]/gi, "");
+    let condition = false;
+
+    if (min != "" && max != "") {
+      condition =
+        _.inRange(Number(answer), Number(min), Number(max) + 1) &&
+        Number(min) <= Number(max);
+      condition =
+        this.props.killer_condition === "not_between?" ? !condition : condition;
+    } else if (min != "") {
+      condition = eval(`${Number(min)} <= ${Number(answer)}`);
+    } else if (max != "") {
+      condition = eval(`${Number(max)} >= ${Number(answer)}`);
+    }
+    return condition;
+  }
+
   evaluateAnswer(value) {
     const { killer_condition, selected_option, killer_value } = this.props;
     switch (selected_option) {
       case "currency":
-        const amount = value.replace(/[\$,\,]/gi, "");
-        const question_amount = killer_value.replace(/[\$,\,]/gi, "");
-        return eval(`${amount} ${killer_condition} ${question_amount}`);
       case "range":
-        const condition = _.inRange(
-          parseFloat(value),
-          parseFloat(killer_value[0]),
-          parseFloat(killer_value[1]) + 1
-        );
-        if (killer_condition === "between?") {
-          return condition;
-        } else {
-          return !condition;
-        }
+      case "int":
+        const answer = Array.isArray(value)
+          ? value[0] != ""
+            ? value[0]
+            : value[1]
+          : value;
+        const condition = this.evaluateRange(killer_value, answer);
+        return condition;
       case "boolean":
         return eval(
           `'${value.value}' ${killer_condition} '${killer_value.value}'`
@@ -177,10 +192,6 @@ class AnswerInput extends React.Component {
         const answer_date = Date.parse(value);
         const killer_date = Date.parse(killer_value);
         return eval(`${answer_date} ${killer_condition} ${killer_date}`);
-      case "int":
-        return eval(
-          `${Number(value)} ${killer_condition} ${Number(killer_value)}`
-        );
       case "option":
       case "multiple_option":
         const answer_options = Array.isArray(value)
@@ -231,10 +242,10 @@ class AnswerInput extends React.Component {
   drawIsCorrect() {
     const { t } = this.props;
     if (String(this.state.answer).trim() !== "") {
-      const is_wrong = this.evaluateAnswer(this.state.answer);
-      const icon = is_wrong ? "down" : "up";
-      const color = is_wrong ? "danger" : "success";
-      const text_helper = is_wrong ? "discarded" : "approved";
+      const correct = this.evaluateAnswer(this.state.answer);
+      const icon = correct ? "up" : "down";
+      const color = correct ? "success" : "danger";
+      const text_helper = correct ? "approved" : "discarded";
 
       return (
         <span
@@ -254,15 +265,84 @@ class AnswerInput extends React.Component {
     this.setState({ killer_value: "", answer: "", options: [] });
   }
 
+  drawHelpText() {
+    const { killer_condition, killer_value, t } = this.props;
+    let text = "";
+    let info = "info";
+
+    switch (killer_condition) {
+      case "<=":
+        text = t(
+          "questions.select_options.killer_condition_types.less_than_or_equal_to"
+        );
+        info = "info";
+        break;
+      case "==":
+        text = t("questions.select_options.killer_condition_types.equal");
+        info = "info";
+        break;
+      case "between?":
+      case "not_between?":
+        const min = killer_value[0].replace(/[\$,\.]/gi, "");
+        const max = killer_value[1].replace(/[\$,\.]/gi, "");
+
+        if (min != "" && max != "") {
+          text = t(
+            `questions.select_options.killer_condition_types.${killer_condition.replace(
+              /[\?]/gi,
+              ""
+            )}`
+          );
+          info = "info_2";
+        } else if (min != "") {
+          text = t(
+            "questions.select_options.killer_condition_types.greater_than_or_equal"
+          );
+          info = "info";
+        } else if (max != "") {
+          text = t(
+            "questions.select_options.killer_condition_types.less_than_or_equal_to"
+          );
+          info = "info";
+        }
+
+        break;
+      case "are_options?":
+        text = t("questions.select_options.killer_condition_types.are_options");
+        info = "info_3";
+        break;
+      case "some_option?":
+        text = t("questions.select_options.killer_condition_types.some_option");
+        info = "info_3";
+        break;
+      default:
+        text = t("questions.select_options.killer_condition_types.equal");
+        info = "info";
+        break;
+    }
+
+    return (
+      <small
+        dangerouslySetInnerHTML={{
+          __html: t(`questions.html_helpers.answer_preview.${info}`, {
+            v: text
+          })
+        }}
+      ></small>
+    );
+  }
+
   drawExampleQuestion() {
     const { killer_value, killer_condition, t } = this.props;
-    if (killer_condition.trim() !== "" && String(killer_value).trim() !== "") {
+    if (
+      killer_condition.trim() !== "" &&
+      String(killer_value).trim() !== "" &&
+      this.props.disposable
+    ) {
       return (
         <div className="card-footer">
           <div className="form-group">
-            <p className="text-muted mb-2">
-              <small>{t("questions.html_helpers.answer_preview.info")}</small>
-            </p>
+            <p className="text-muted mb-2">{this.drawHelpText()}</p>
             <div className="row d-flex align-items-center">
               <div className="col-sm-4 __force-text_break-word">
                 <label htmlFor="" className="label-bold">

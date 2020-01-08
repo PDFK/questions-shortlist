@@ -11,7 +11,10 @@ class KillerValueInput extends React.Component {
     this.state = {
       options: props.question.options || [],
       killer_value: props.question.killer_value,
-      killer_value_multiple: []
+      killer_value_multiple: [],
+      enable_min: true,
+      enable_max: true,
+      range_error: false
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOptionsChange = this.handleOptionsChange.bind(this);
@@ -22,7 +25,7 @@ class KillerValueInput extends React.Component {
 
   drawKillerValue() {
     const value = this.state.killer_value;
-    const { t, selected_option, name } = this.props;
+    const { t, selected_option, name, disposable } = this.props;
     const boolean_options = [
       {
         value: t("questions.html_helpers.boolean_option.positive"),
@@ -37,120 +40,217 @@ class KillerValueInput extends React.Component {
       // none of react-select's styles are passed to <Control />
       width: "calc(100% - 42px)"
     };
+    const text_helper =
+      selected_option === "string" || selected_option === "boolean"
+        ? "default"
+        : selected_option;
 
-    switch (selected_option) {
-      case "currency":
-        return (
-          <CurrencyInput
-            value={value}
-            precision="0"
-            prefix="$"
-            thousandSeparator=","
-            onChangeEvent={this.handleInputChange}
-            className="form-control"
-            name={`${name}[killer_value]`}
-          />
-        );
-      case "range":
-        return (
-          <div style={customStyles}>
-            <input
-              onChange={this.handleInputRangeChange}
-              data-edge="initial"
-              value={value[0] || 0}
-              className="form-control"
-              type="number"
-              min="0"
-              placeholder={t("questions.html_helpers.range_option.initial")}
-            />
-            <input
-              onChange={this.handleInputRangeChange}
-              data-edge="final"
-              value={value[1] || 1}
-              className="form-control"
-              type="number"
-              min={value[0]}
-              placeholder={t("questions.html_helpers.range_option.final")}
-            />
-            <input type="hidden" name={`${name}[killer_value]`} value={value} />
-          </div>
-        );
-      case "boolean":
-        return (
-          <div style={customStyles}>
-            <Select
-              options={boolean_options}
-              value={value}
-              onChange={this.handleKillerValueChange}
-              name={`${name}[killer_value]`}
-            />
-          </div>
-        );
-      case "date":
-        return (
-          <input
-            onChange={this.handleInputChange}
-            value={value}
-            className="form-control"
-            type="date"
-            name={`${name}[killer_value]`}
-          />
-        );
-      case "int":
-        return (
-          <input
-            onChange={this.handleInputChange}
-            value={value}
-            className="form-control"
-            type="number"
-            name={`${name}[killer_value]`}
-          />
-        );
-      case "option":
-      case "multiple_option":
-        const options = this.state.options;
+    if (disposable) {
+      switch (selected_option) {
+        case "currency":
+          return (
+            <div className="row">
+              <div className="col">
+                <div className="input-group">
+                  {this.drawLabelInput(text_helper, "enable_min")}
+                  <CurrencyInput
+                    allowEmpty={true}
+                    disabled={!this.state.enable_min}
+                    value={value[0] || ""}
+                    data-edge="initial"
+                    precision="0"
+                    prefix="$"
+                    thousandSeparator="."
+                    onChangeEvent={this.handleInputRangeChange}
+                    className={`form-control ${
+                      this.state.range_error ? "is-invalid" : ""
+                    }`}
+                    name={`${name}[killer_value]`}
+                    placeholder={t(
+                      "questions.html_helpers.range_option.initial"
+                    )}
+                  />
+                  {this.drawEnableInput("enable_min")}
+                </div>
+                {this.drawHelperText("min")}
+              </div>
+              <div className="col">
+                <div className="input-group">
+                  {this.drawLabelInput(text_helper, "enable_max")}
+                  <CurrencyInput
+                    allowEmpty={true}
+                    disabled={!this.state.enable_max}
+                    value={value[1]}
+                    data-edge="final"
+                    precision="0"
+                    prefix="$"
+                    thousandSeparator="."
+                    onChangeEvent={this.handleInputRangeChange}
+                    className={`form-control ${
+                      this.state.range_error ? "is-invalid" : ""
+                    }`}
+                    name={`${name}[killer_value]`}
+                    placeholder={t("questions.html_helpers.range_option.final")}
+                  />
+                  {this.drawEnableInput("enable_max")}
+                </div>
+                {this.drawHelperText("max")}
+              </div>
+              <input
+                type="hidden"
+                name={`${name}[killer_value]`}
+                value={Array.isArray(value) ? value.join("|") : value}
+              />
+            </div>
+          );
+        case "date":
+          return (
+            <div className="input-group">
+              <input
+                onChange={this.handleInputChange}
+                value={value}
+                className="form-control"
+                type="date"
+                name={`${name}[killer_value]`}
+              />
+              {this.drawLabelInput(text_helper)}
+            </div>
+          );
+        case "int":
+        case "range":
+          return (
+            <div className="row">
+              <div className="col">
+                <div className="input-group">
+                  {this.drawLabelInput(text_helper, "enable_min")}
+                  <input
+                    onChange={this.handleInputRangeChange}
+                    disabled={!this.state.enable_min}
+                    data-edge="initial"
+                    value={value[0]}
+                    className={`form-control ${
+                      this.state.range_error ? "is-invalid" : ""
+                    }`}
+                    type={
+                      selected_option == "int" || selected_option == "range"
+                        ? "number"
+                        : selected_option
+                    }
+                    min="0"
+                    placeholder={t(
+                      "questions.html_helpers.range_option.initial"
+                    )}
+                  />
+                  {this.drawEnableInput("enable_min")}
+                </div>
+                {this.drawHelperText("min")}
+              </div>
+              <div className="col">
+                <div className="input-group">
+                  {this.drawLabelInput(text_helper, "enable_max")}
+                  <input
+                    onChange={this.handleInputRangeChange}
+                    data-edge="final"
+                    disabled={!this.state.enable_max}
+                    value={value[1]}
+                    className={`form-control ${
+                      this.state.range_error ? "is-invalid" : ""
+                    }`}
+                    type={
+                      selected_option == "int" || selected_option == "range"
+                        ? "number"
+                        : selected_option
+                    }
+                    min={value[0]}
+                    placeholder={t("questions.html_helpers.range_option.final")}
+                  />
+                  {this.drawEnableInput("enable_max")}
+                </div>
+                {this.drawHelperText("max")}
+              </div>
+              <input
+                type="hidden"
+                name={`${name}[killer_value]`}
+                value={Array.isArray(value) ? value.join("|") : value}
+              />
+            </div>
+          );
+        case "boolean":
+          return (
+            <div className="input-group">
+              <div style={customStyles} className="input-group">
+                <Select
+                  className="w-100"
+                  options={boolean_options}
+                  value={value}
+                  onChange={this.handleKillerValueChange}
+                  name={`${name}[killer_value]`}
+                />
+              </div>
+              {this.drawLabelInput(text_helper)}
+            </div>
+          );
+        case "option":
+        case "multiple_option":
+          const options = this.state.options;
 
-        return (
-          <div style={customStyles}>
-            <Select
-              isMulti={true}
-              ref={"inputSelect"}
-              options={options}
-              value={commonFunctions.validOptions(value, this)}
-              onChange={this.handleKillerValueChange}
-              placeholder={t("questions.action.select")}
-              noOptionsMessage={() => t("questions.action.no_options")}
-            />
-            <input
-              type="hidden"
-              name={`${name}[killer_value]`}
-              value={this.state.killer_value_multiple}
-            />
-          </div>
-        );
-      default:
-        return (
-          <input
-            onChange={this.handleInputChange}
-            value={value}
-            className="form-control"
-            type="text"
-            name={`${name}[killer_value]`}
-          />
-        );
+          return (
+            <div className="input-group">
+              <div style={customStyles} className="input-group">
+                <Select
+                  isMulti={true}
+                  ref={"inputSelect"}
+                  options={options}
+                  value={commonFunctions.validOptions(value, this)}
+                  onChange={this.handleKillerValueChange}
+                  placeholder={t("questions.action.select")}
+                  noOptionsMessage={() => t("questions.action.no_options")}
+                  className="w-100"
+                />
+                <input
+                  type="hidden"
+                  name={`${name}[killer_value]`}
+                  value={this.state.killer_value_multiple}
+                />
+              </div>
+              {this.drawLabelInput(text_helper)}
+            </div>
+          );
+        default:
+          return (
+            <div className="input-group">
+              <input
+                onChange={this.handleInputChange}
+                value={value}
+                className="form-control"
+                type="text"
+                name={`${name}[killer_value]`}
+              />
+              {this.drawLabelInput(text_helper)}
+            </div>
+          );
+      }
     }
   }
 
   componentDidMount() {
-    const killer_value_multiple = Array.isArray(this.state.killer_value)
-      ? this.state.killer_value.map(a => a.value).join(";")
-      : this.state.killer_value.value;
+    const { killer_value } = this.state || ["0", "0"];
+    const killer_value_multiple = Array.isArray(killer_value)
+      ? killer_value.map(a => a.value).join(";")
+      : killer_value.value;
+    if (Array.isArray(killer_value)) {
+      const enable_max = killer_value[1] !== "";
+      const enable_min = killer_value[0] !== "";
+      this.setState({ enable_min: enable_min, enable_max: enable_max });
+    }
+
     if (
       (this.props.selected_option === "option" ||
         this.props.selected_option === "multiple_option") &&
       typeof killer_value_multiple !== "undefined"
-    )
+    ) {
       this.setState({ killer_value_multiple: killer_value_multiple });
+    }
   }
 
   handleKillerValueChange(value) {
@@ -172,6 +272,19 @@ class KillerValueInput extends React.Component {
     this.setState({ killer_value: "", killer_value_multiple: "", options: [] });
   }
 
+  handleEnableInputs(input) {
+    const edge = input === "enable_min" ? 0 : 1;
+    let killer_value = this.state.killer_value || ["0", "0"];
+
+    killer_value[edge] = !this.state[input] ? "0" : "";
+    this.setState({
+      [input]: !this.state[input],
+      killer_value: killer_value,
+      range_error: this.validateRangeInput(killer_value)
+    });
+    this.props.handleChangeStatus("killer_value", killer_value);
+  }
+
   handleInputChange(event) {
     let input = event.target;
     this.setState({ killer_value: input.value });
@@ -179,13 +292,25 @@ class KillerValueInput extends React.Component {
   }
 
   handleInputRangeChange(event) {
-    let killer_value = this.state.killer_value || [0, 1];
+    let killer_value = this.state.killer_value || ["0", "0"];
     const input = event.target;
     const edge = event.target.getAttribute("data-edge") === "initial" ? 0 : 1;
 
     killer_value[edge] = input.value;
-    this.setState({ killer_value: killer_value });
+
+    const range_error = this.validateRangeInput(killer_value);
+    this.setState({ killer_value: killer_value, range_error: range_error });
     this.props.handleChangeStatus("killer_value", killer_value);
+  }
+
+  validateRangeInput(killer_value) {
+    if (this.state.enable_min && this.state.enable_max) {
+      const min = killer_value[0].replace(/[\$,\,]/gi, "");
+      const max = killer_value[1].replace(/[\$,\,]/gi, "");
+
+      return parseFloat(min) > parseFloat(max);
+    }
+    return false;
   }
 
   handleOptionsChange(value) {
@@ -193,27 +318,77 @@ class KillerValueInput extends React.Component {
     this.props.handleChangeStatus("options", value);
   }
 
+  drawHelperText(enabled) {
+    const option = !this.state[`enable_${enabled}`] ? "disabled" : "enabled";
+    const { t } = this.props;
+    return (
+      <span className="text-danger">
+        {t(`questions.html_helpers.${option}.${enabled}`)}
+      </span>
+    );
+  }
+
+  drawEnableInput(enabled) {
+    return (
+      <div className="input-group-prepend">
+        <div className="input-group-text">
+          <input
+            type="checkbox"
+            onChange={this.handleEnableInputs.bind(this, enabled)}
+            checked={this.state[enabled]}
+            aria-label="Checkbox for following text input"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  drawLabelInput(text_helper, enabled) {
+    const { t } = this.props;
+    const text = enabled
+      ? t(`questions.html_helpers.${enabled}`)
+      : "<i class='fas fa fa-info-circle' />";
+    return (
+      <div className="input-group-append">
+        <a
+          className="input-group-text tooltip-info"
+          title={t(`questions.html_helpers.types.${text_helper}`)}
+          data-toggle="tooltip"
+          data-placement="top"
+          dangerouslySetInnerHTML={{ __html: text }}
+        ></a>
+      </div>
+    );
+  }
+
   drawOptionsInput() {
     let options = this.state.options || [];
     let selected_option = this.props.selected_option;
     const { t, name } = this.props;
-
+    const customStyles = {
+      // none of react-select's styles are passed to <Control />
+      width: "calc(100% - 42px)"
+    };
     if (selected_option === "option" || selected_option === "multiple_option") {
       return (
-        <div className="question-options flex-fill px-3">
+        <div className="input-group">
           <label htmlFor="" className="label-bold">
             {t("questions.attributes.options")}
           </label>
-          <CreatableSelect
-            isMulti
-            options={options}
-            value={options}
-            className=""
-            onChange={this.handleOptionsChange}
-            name={`${name}[options][]`}
-            placeholder={t("questions.action.no_options")}
-            noOptionsMessage={() => t("questions.action.no_options")}
-          />
+          <div style={customStyles} className="question-options input-group">
+            <CreatableSelect
+              isMulti
+              options={options}
+              value={options}
+              className=""
+              onChange={this.handleOptionsChange}
+              name={`${name}[options][]`}
+              placeholder={t("questions.action.no_options")}
+              noOptionsMessage={() => t("questions.action.no_options")}
+              className="w-100"
+            />
+          </div>
+          {this.drawLabelInput("default")}
           <InputError attr="options" errors={this.props.question.errors} />
         </div>
       );
@@ -222,39 +397,31 @@ class KillerValueInput extends React.Component {
     }
   }
 
-  render() {
-    const { t, selected_option } = this.props;
-    var text_helper =
-      selected_option === "string" || selected_option === "boolean"
-        ? "default"
-        : selected_option;
+  drawLabel() {
+    const { t, selected_option, disposable } = this.props;
     const label =
       selected_option === "multiple_option" || selected_option === "option"
         ? "killer_value_multiple"
         : "killer_value";
 
+    if (disposable) {
+      return (
+        <label htmlFor="" className="label-bold">
+          {t(`questions.attributes.${label}`)}
+        </label>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  render() {
     return (
-      <div className="form-group row">
+      <div className="form-group flex-fill px-3">
         {this.drawOptionsInput()}
-        <div className="flex-fill px-3">
-          <label htmlFor="" className="label-bold">
-            {t(`questions.attributes.${label}`)}
-          </label>
-          <div className="input-group">
-            {this.drawKillerValue()}
-            <div className="input-group-append">
-              <a
-                className="input-group-text tooltip-info"
-                title={t(`questions.html_helpers.types.${text_helper}`)}
-                data-toggle="tooltip"
-                data-placement="top"
-              >
-                <i className="fas fa fa-info-circle" />
-              </a>
-            </div>
-          </div>
-          <InputError attr="killer_value" errors={this.props.question.errors} />
-        </div>
+        {this.drawLabel()}
+        {this.drawKillerValue()}
+        <InputError attr="killer_value" errors={this.props.question.errors} />
       </div>
     );
   }

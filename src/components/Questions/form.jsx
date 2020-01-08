@@ -16,7 +16,6 @@ const QuestionForm = props => {
     with_weight,
     with_audio,
     index,
-    id,
     collapseQuestion
   } = props;
   const [value_type, setValueType] = useState(question.value_type);
@@ -27,6 +26,7 @@ const QuestionForm = props => {
   const [options, setOptions] = useState(question.options || []);
   const [collapsed, setCollapsed] = useState(collapseQuestion);
   const [killer_value, setKillerValue] = useState(question.killer_value);
+  const [disposable, setDisposable] = useState(question.disposable);
   const answerinputElement = useRef(null);
   const killervalueinputElement = useRef(null);
   const ref = useRef(null);
@@ -51,10 +51,6 @@ const QuestionForm = props => {
       {
         value: "boolean",
         label: t("questions.select_options.value_types.boolean")
-      },
-      {
-        value: "range",
-        label: t("questions.select_options.value_types.range")
       },
       {
         value: "currency",
@@ -96,25 +92,52 @@ const QuestionForm = props => {
 
   const handleValueType = selectedOption => {
     const option = selectedOption.value;
-    if (value_type != "audio") {
+    if (disposable || value_type !== "audio") {
       killervalueinputElement.current.resetValues();
       answerinputElement.current.resetValues();
     }
-    if (option === "audio") {
-      question.value_type = option;
-      props.handleOnChangeWeight(null, question, true);
-      const elements = document.getElementsByClassName("weighing");
-      for (let item of elements) {
-        item.value = "";
-      }
+    let kc_value = "";
+    switch (option) {
+      case "date":
+        kc_value = "<=";
+        break;
+      case "boolean":
+      case "string":
+        kc_value = "==";
+        break;
+      case "currency":
+      case "int":
+      case "range":
+        kc_value = "between?";
+        break;
+      case "option":
+      case "multiple_option":
+        kc_value = "";
+        break;
+      case "audio":
+        question.value_type = option;
+        props.handleOnChangeWeight(null, question, true);
+        const elements = document.getElementsByClassName("weighing");
+        for (let item of elements) {
+          item.value = "";
+        }
+        break;
+      default:
+        kc_value = "";
     }
     setValueType(option);
-    setKillerCondition("");
+    setKillerCondition(kc_value);
     setKillerValue("");
   };
 
   const handleInputChange = event => {
     setDescription(event.target.value);
+  };
+
+  const handleInputDisposableChange = event => {
+    question.disposable = !disposable;
+    props.handleDisposable(question);
+    setDisposable(!disposable);
   };
 
   const drawKillerCondition = () => {
@@ -146,27 +169,29 @@ const QuestionForm = props => {
           question={question}
           name={name}
           handleChangeStatus={handleChangeStatus}
+          disposable={disposable}
         />
       );
     }
   };
 
   const handleChangeStatus = (key, value) => {
+    const _value = Array.isArray(value) ? [...value] : value;
     switch (key) {
       case "value_type":
-        setValueType(value);
+        setValueType(_value);
         break;
       case "description":
-        setDescription(value);
+        setDescription(_value);
         break;
       case "killer_condition":
-        setKillerCondition(value);
+        setKillerCondition(_value);
         break;
       case "options":
-        setOptions(value);
+        setOptions(_value);
         break;
       case "killer_value":
-        setKillerValue(value);
+        setKillerValue(_value);
         break;
       default:
         break;
@@ -179,7 +204,7 @@ const QuestionForm = props => {
   };
 
   const drawWeight = () => {
-    if (with_weight && value_type != "audio") {
+    if (with_weight && value_type != "audio" && disposable) {
       return (
         <div className="form-group col-sm-12 col-md-2">
           <label className="label-bold" htmlFor={`${name}[weighing]`}>
@@ -207,6 +232,35 @@ const QuestionForm = props => {
           defaultValue={question.weighing}
         />
       );
+    }
+  };
+
+  const drawDisposableSwitch = () => {
+    if (value_type != "audio") {
+      return (
+        <div className="row">
+          <div className="col-sm-12">
+            <div className="custom-control custom-switch float-right">
+              <input
+                type="checkbox"
+                className="custom-control-input"
+                checked={disposable}
+                id={`disposableSwitch_${question.key}`}
+                onChange={handleInputDisposableChange}
+                name={`${name}[disposable]`}
+              />
+              <label
+                className="custom-control-label"
+                htmlFor={`disposableSwitch_${question.key}`}
+              >
+                {t("questions.attributes.disposable")}
+              </label>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
     }
   };
 
@@ -344,14 +398,10 @@ const QuestionForm = props => {
                   {drawValueType()}
                   <InputError attr="value_type" errors={question.errors} />
                 </div>
-
-                <div className="form-group flex-fill px-3">
-                  {drawKillerCondition()}
-                </div>
-                <div className="form-group flex-fill px-3">
-                  {drawKillerValue()}
-                </div>
+                {drawKillerCondition()}
+                {drawKillerValue()}
               </div>
+              {drawDisposableSwitch()}
             </div>
             <AnswerInput
               t={t}
@@ -361,6 +411,7 @@ const QuestionForm = props => {
               options={options}
               killer_condition={killer_condition}
               killer_value={killer_value}
+              disposable={disposable}
             />
             <input type="hidden" name={`${name}[id]`} value={question.id} />
             <input

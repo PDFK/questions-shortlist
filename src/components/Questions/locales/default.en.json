@@ -21,12 +21,12 @@
         "greater_than_or_equal": "Greater Than Or Equal",
         "between": "Inside the range",
         "not_between": "Out of range",
-        "is_option": "The selection is present in the discard options",
-        "isnt_option": "The selection is not present in the discard options",
-        "are_options": "The set of discard options is present",
-        "arent_options": "The set of discard options is not present",
-        "some_option": "Any option of the discard set is present",
-        "none_choice": "No option of the discard set is present"
+        "is_option": "The selection is present in the question options",
+        "isnt_option": "The selection is not present in the question options",
+        "are_options": "The set of options of the question is present",
+        "arent_options": "The set of options of the question is not present",
+        "some_option": "Any option of the whole question is present",
+        "none_choice": "No choice of the whole of the question we are present"
       }
     },
     "html_helpers": {
@@ -40,7 +40,9 @@
         "multiple_option": "Select the options to discard"
       },
       "answer_preview": {
-        "info": "Try how the discard will work with the answers.",
+        "info": "The answer will be taken taking into account that it is <b><u>{{v}}</u></b> as expected.",
+        "info_2": "The response will be evaluated taking into account that it is expected <b><u>{{v}}</u></b>.",
+        "info_3": "The response will be evaluated taking into account that <b><u>{{v}}</u></b>.",
         "state": {
           "approved": "With this answer a ​​candidate would be Approved",
           "discarded": "With this answer a ​​candidate would be Discarded"
@@ -63,23 +65,37 @@
       "show": "show",
       "all_questions": " all questions",
       "delete_question": "Delete question",
-      "delete": "Delete"
+      "delete": "Delete",
+      "enable_min": "Min",
+      "enable_max": "Max",
+      "enabled": {
+        "min": "",
+        "max": ""
+      },
+      "disabled": {
+        "min": "",
+        "max": ""
+      }
     },
     "attributes": {
       "description": "Text of the question to be asked",
       "weighing": "Question weighing",
-      "killer_condition": "Discard when the answer is...",
-      "killer_condition_multiple": "Discard when...",
-      "killer_value": "Expected value to discard",
-      "killer_value_multiple": "Expected options to discard",
+      "killer_condition": "Approve when the answer is...",
+      "killer_condition_multiple": "Approve when...",
+      "killer_value": "Expected value",
+      "killer_value_multiple": "Expected options",
       "value_type": "Evaluate based on ...",
-      "options": "Question Options"
+      "options": "Question Options",
+      "disposable": "Discard question?"
     },
     "action": {
       "add": " Add question",
       "add_options": "Add Options",
       "select": "Select",
       "no_options": "No options"
+    },
+    "errors": {
+      "weighing": "The sum of the weight of each question should not be different than 100"
     }
   }
 }

@@ -42,7 +42,8 @@ const MultipleForm = props => {
       killer_value: "",
       key: key,
       weighing: weighing,
-      order: order
+      order: order,
+      disposable: true
     });
 
     if (with_weight) {
@@ -92,6 +93,7 @@ const MultipleForm = props => {
             question={_question}
             deleteQuestion={handleDelete}
             handleOnChangeWeight={handleOnChangeWeight}
+            handleDisposable={handleDisposable}
             with_weight={with_weight}
             with_audio={with_audio}
             moveCard={moveCard}
@@ -102,6 +104,17 @@ const MultipleForm = props => {
         );
       });
     }
+  };
+
+  const handleDisposable = question => {
+    let arr = [...questions];
+    const found = questions.findIndex(s => {
+      return s.key === question.key;
+    });
+    question.weighing = "";
+    arr[found] = question;
+    setQuestions(arr);
+    setWeightErrors(arr);
   };
 
   const handleOnChangeWeight = (event, question, resetAll = false) => {
@@ -116,8 +129,8 @@ const MultipleForm = props => {
     } else {
       question.weighing = Number(event.target.value);
       arr[found] = question;
-      setWeightErrors(arr);
       setQuestions(arr);
+      setWeightErrors(arr);
     }
   };
 
@@ -131,7 +144,7 @@ const MultipleForm = props => {
   const setWeightErrors = questions => {
     const total = calculateTotalWeight(questions);
 
-    if (total === 100) {
+    if (total === 100 || total === 0) {
       questions.map(q => {
         if (q.errors && q.errors.weighing) {
           delete q.errors.weighing;
@@ -141,14 +154,10 @@ const MultipleForm = props => {
     } else {
       questions.map(q => {
         if (q.errors) {
-          q.errors["weighing"] = [
-            "La suma del peso de cada pregunta no debe ser diferente a 100"
-          ];
+          q.errors["weighing"] = [t("questions.errors.weighing")];
         } else {
           q["errors"] = {};
-          q.errors["weighing"] = [
-            "La suma del peso de cada pregunta no debe ser diferente a 100"
-          ];
+          q.errors["weighing"] = [t("questions.errors.weighing")];
         }
         return q;
       });
@@ -171,9 +180,7 @@ const MultipleForm = props => {
       calculateTotalWeight(questions) === 100
         ? []
         : {
-            weighing: [
-              "La suma del peso de cada pregunta no debe ser diferente a 100"
-            ]
+            weighing: [t("questions.errors.weighing")]
           };
 
     const new_question = {
@@ -187,7 +194,8 @@ const MultipleForm = props => {
       errors: question.errors || weightError,
       weighing: question.weighing,
       key: question.key,
-      _destroy: question._destroy || false
+      _destroy: question._destroy || false,
+      disposable: question.disposable || true
     };
     return new_question;
   };
@@ -209,15 +217,13 @@ const MultipleForm = props => {
           });
         }
         break;
+      case "int":
       case "range":
-        if (Array.isArray(values)) {
+      case "currency":
+        if (!Array.isArray(values)) {
+          values = values.split("|");
           values = values.map(item => {
-            return { value: item, label: item };
-          });
-        } else {
-          values = values.split(",");
-          values = values.map(item => {
-            return { value: item, label: item };
+            return item;
           });
         }
         break;
@@ -291,7 +297,9 @@ const calculateTotalWeight = qs => {
     return 0;
   } else {
     const array = qs.filter(q => {
-      return q.value_type != "audio";
+      return (
+        q.value_type != "audio" && (q.disposable == "true" || q.disposable)
+      );
     });
     if (array.length > 0) {
       return array.reduce((total, question) => {

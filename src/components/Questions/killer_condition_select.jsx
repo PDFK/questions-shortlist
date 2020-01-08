@@ -20,10 +20,6 @@ const KillerConditionSelect = props => {
   const validOptions = selected_option => {
     const killer_condition_types = [
       {
-        value: "<",
-        label: t("questions.select_options.killer_condition_types.smaller_than")
-      },
-      {
         value: "<=",
         label: t(
           "questions.select_options.killer_condition_types.less_than_or_equal_to"
@@ -34,78 +30,38 @@ const KillerConditionSelect = props => {
         label: t("questions.select_options.killer_condition_types.equal")
       },
       {
-        value: "!=",
-        label: t("questions.select_options.killer_condition_types.distinct")
-      },
-      {
-        value: ">",
-        label: t("questions.select_options.killer_condition_types.greater_than")
-      },
-      {
-        value: ">=",
-        label: t(
-          "questions.select_options.killer_condition_types.greater_than_or_equal"
-        )
-      },
-      {
         value: "between?",
         label: t("questions.select_options.killer_condition_types.between")
-      },
-      {
-        value: "not_between?",
-        label: t("questions.select_options.killer_condition_types.not_between")
-      },
-      {
-        value: "is_option?",
-        label: t("questions.select_options.killer_condition_types.is_option")
-      },
-      {
-        value: "isnt_option?",
-        label: t("questions.select_options.killer_condition_types.isnt_option")
       },
       {
         value: "are_options?",
         label: t("questions.select_options.killer_condition_types.are_options")
       },
       {
-        value: "arent_options?",
-        label: t(
-          "questions.select_options.killer_condition_types.arent_options"
-        )
-      },
-      {
         value: "some_option?",
         label: t("questions.select_options.killer_condition_types.some_option")
       },
-      {
-        value: "none_choice?",
-        label: t("questions.select_options.killer_condition_types.none_choice")
-      }
     ];
     let options = [];
 
     switch (selected_option) {
-      case "currency":
       case "date":
-      case "int":
-        options = ["<", "<=", "==", "!=", ">", ">="];
+        options = "<=";
         break;
       case "boolean":
       case "string":
-        options = ["==", "!="];
+        options = "==";
         break;
+      case "currency":
+      case "int":
       case "range":
         options = ["between?", "not_between?"];
         break;
       case "option":
-        options = ["is_option?", "isnt_option?"];
-        break;
       case "multiple_option":
         options = [
           "are_options?",
-          "arent_options?",
           "some_option?",
-          "none_choice?"
         ];
         break;
       default:
@@ -126,15 +82,29 @@ const KillerConditionSelect = props => {
       options.find(item => {
         return item.value === killer_condition;
       }) || [];
-    return (
-      <Select
-        onChange={handleKillerValue}
-        options={options}
-        value={value}
-        name={`${name}[killer_condition]`}
-        placeholder={t("questions.action.select")}
-      />
-    );
+
+    if(props.selected_option === "multiple_option" || props.selected_option === "option") {
+      return (
+        <div className="form-group flex-fill px-3">
+          <label htmlFor="" className="label-bold">
+            {t(`questions.attributes.${label}`)}
+          </label>
+          <Select
+            onChange={handleKillerValue}
+            options={options}
+            value={value}
+            name={`${name}[killer_condition]`}
+            placeholder={t("questions.action.select")}
+          />
+          <InputError attr="killer_condition" errors={props.question.errors} />
+        </div>
+      );
+    }
+    else {
+      return(
+        <input type="hidden" name={`${name}[killer_condition]`} value={props.killer_condition} />
+      )
+    }
   };
 
   const handleKillerValue = selectedOption => {
@@ -144,13 +114,7 @@ const KillerConditionSelect = props => {
   };
 
   return (
-    <div className="form-group">
-      <label htmlFor="" className="label-bold">
-        {t(`questions.attributes.${label}`)}
-      </label>
-      {drawKillerCondition()}
-      <InputError attr="killer_condition" errors={props.question.errors} />
-    </div>
+    drawKillerCondition()
   );
 };
 
