@@ -21,12 +21,12 @@
         "greater_than_or_equal": "Mayor o Igual Que",
         "between": "Dentro del rango",
         "not_between": "Fuera del rango",
-        "is_option": "La selección esté presente en las opciones de descarte",
-        "isnt_option": "La selección no esté presente en las opciones de descarte",
-        "are_options": "El conjunto de opciones de descarte esté presente",
-        "arent_options": "El conjunto de opciones de descarte no esté presente",
-        "some_option": "Alguna opción del conjunto de descarte esté presente",
-        "none_choice": "Ninguna opción del conjunto de descarte esté presente"
+        "is_option": "La selección esté presente en las opciones de la pregunta",
+        "isnt_option": "La selección no esté presente en las opciones de la pregunta",
+        "are_options": "El conjunto de opciones de la pregunta esté presente",
+        "arent_options": "El conjunto de opciones de la pregunta no esté presente",
+        "some_option": "Alguna opción del conjunto de la pregunta esté presente",
+        "none_choice": "Ninguna opción del conjunto de la pregunta esté presente"
       }
     },
     "html_helpers": {
@@ -40,7 +40,9 @@
         "multiple_option": "Seleccione las opciones para descartar"
       },
       "answer_preview": {
-        "info": "Prueba como funcionará el descarte con las respuestas.",
+        "info": "La respuesta será evaluada teniendo en cuenta que es <b><u>{{ v }}</u></b> lo esperado.",
+        "info_2": "La respuesta será evaluada teniendo en cuenta que está <b><u>{{ v }}</u></b> esperado.",
+        "info_3": "La respuesta será evaluada teniendo en cuenta que <b><u>{{ v }}</u></b>.",
         "state": {
           "approved": "Con esta respuesta/s un candidato sería Aprobado",
           "discarded": "Con esta respuesta/s un candidato sería Descartado"
@@ -63,23 +65,37 @@
       "show": "ver",
       "all_questions": " todas las preguntas",
       "delete_question": "Borrar Pregunta",
-      "delete": "Borrar"
+      "delete": "Borrar",
+      "enable_min": "Min",
+      "enable_max": "Max",
+      "enabled": {
+        "min": "Ház clic al final del campo 'Min' para deshabilitar",
+        "max": "Ház clic al final del campo 'Max' para deshabilitar"
+      },
+      "disabled": {
+        "min": "Ház clic al final del campo 'Min' para habilitar",
+        "max": "Ház clic al final del campo 'Max' para habilitar"
+      }
     },
     "attributes": {
       "description": "Texto de la pregunta a realizar",
       "weighing": "Peso de la pregunta",
-      "killer_condition": "Descartar cuando sea (o esté)...",
-      "killer_condition_multiple": "Descartar cuando...",
-      "killer_value": "Valor para realizar el descarte",
-      "killer_value_multiple": "Opciones para realizar el descarte",
+      "killer_condition": "Aprobar cuando sea (o esté)...",
+      "killer_condition_multiple": "Aprobar cuando...",
+      "killer_value": "Valor esperado",
+      "killer_value_multiple": "Opciones esperadas",
       "value_type": "Evaluar en base a...",
-      "options": "Opciones de la pregunta"
+      "options": "Opciones de la pregunta",
+      "disposable": "¿Pregunta de descarte?"
     },
     "action": {
       "add": " Agregar pregunta",
       "add_options": "Añadir Opciones",
       "select": "Seleciona",
       "no_options": "Sin Opciones"
+    },
+    "errors": {
+      "weighing": "La suma del peso de cada pregunta no debe ser diferente a 100"
     }
   }
 }
