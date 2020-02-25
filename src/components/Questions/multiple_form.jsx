@@ -19,7 +19,7 @@ const MultipleForm = props => {
     setQuestions(questionsTemp);
     const translation = Cookies.get("my_locale") || "es";
     i18n.changeLanguage(translation);
-  }, []);
+  }, [props.questions]);
 
   const handleClick = event => {
     event.preventDefault();
